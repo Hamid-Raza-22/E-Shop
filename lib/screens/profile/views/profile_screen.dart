@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:shop/components/list_tile/divider_list_tile.dart';
 import 'package:shop/components/network_image_with_loader.dart';
 import 'package:shop/constants.dart';
+import 'package:shop/repositories/user_repository.dart';
 import 'package:shop/route/screen_export.dart';
 
 import 'components/profile_card.dart';
@@ -16,14 +17,22 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       body: ListView(
         children: [
-          ProfileCard(
-            name: "Sepide",
-            email: "theflutterway@gmail.com",
-            imageSrc: "https://i.imgur.com/IXnwbLk.png",
-            // proLableText: "Sliver",
-            // isPro: true, if the user is pro
-            press: () {
-              Navigator.pushNamed(context, userInfoScreenRoute);
+          // Reads from the shared UserRepository so edits made on the
+          // edit-profile screen are reflected here immediately.
+          ListenableBuilder(
+            listenable: UserRepository.instance,
+            builder: (context, _) {
+              final user = UserRepository.instance.user;
+              return ProfileCard(
+                name: user.name,
+                email: user.email,
+                imageSrc: user.imageSrc,
+                // proLableText: "Sliver",
+                // isPro: true, if the user is pro
+                press: () {
+                  Navigator.pushNamed(context, userInfoScreenRoute);
+                },
+              );
             },
           ),
           Padding(
