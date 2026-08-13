@@ -104,18 +104,18 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     //   return MaterialPageRoute(
     //     builder: (context) => const DoneResetPasswordScreen(),
     //   );
-    // case termsOfServicesScreenRoute:
-    //   return MaterialPageRoute(
-    //     builder: (context) => const TermsOfServicesScreen(),
-    //   );
-    // case noInternetScreenRoute:
-    //   return MaterialPageRoute(
-    //     builder: (context) => const NoInternetScreen(),
-    //   );
-    // case serverErrorScreenRoute:
-    //   return MaterialPageRoute(
-    //     builder: (context) => const ServerErrorScreen(),
-    //   );
+    case termsOfServicesScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => const TermsOfServicesScreen(),
+      );
+    case noInternetScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => const NoInternetScreen(),
+      );
+    case serverErrorScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => const ServerErrorScreen(),
+      );
     // case signUpVerificationScreenRoute:
     //   return MaterialPageRoute(
     //     builder: (context) => const SignUpVerificationScreen(),
