@@ -26,3 +26,16 @@ export '/screens/wallet/views/empty_wallet_screen.dart';
 export '/screens/wallet/views/wallet_screen.dart';
 export '/screens/profile/views/profile_screen.dart';
 export '/screens/user_info/views/user_info_screen.dart';
+export '/screens/user_info/views/edit_user_info_screen.dart';
+
+export '/screens/auth/views/set_new_password_screen.dart';
+export '/screens/auth/views/terms_of_services_screen.dart';
+export '/screens/checkout/views/add_new_card_screen.dart';
+export '/screens/checkout/views/payment_method_screen.dart';
+export '/screens/checkout/views/thanks_for_order_screen.dart';
+export '/screens/error/views/no_internet_screen.dart';
+export '/screens/error/views/server_error_screen.dart';
+export '/screens/help/views/get_help_screen.dart';
+export '/screens/product/views/product_info_screen.dart';
+export '/screens/product/views/shipping_info_screen.dart';
+export '/screens/product/views/size_guide_screen.dart';
