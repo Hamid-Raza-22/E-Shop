@@ -52,12 +52,15 @@ class OrderCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           "#${order.id}",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall!
                               .copyWith(fontWeight: FontWeight.w500),
                         ),
                       ),
+                      const SizedBox(width: defaultPadding / 4),
                       OrderStatusTag(status: order.status),
                     ],
                   ),
@@ -73,14 +76,23 @@ class OrderCard extends StatelessWidget {
                   const SizedBox(height: defaultPadding / 4),
                   Row(
                     children: [
-                      Text(
-                        formatDate(order.placedOn),
-                        style: Theme.of(context).textTheme.bodySmall,
+                      Flexible(
+                        child: Text(
+                          formatDate(order.placedOn),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                       ),
-                      const Spacer(),
-                      Text(
-                        formatPrice(order.total),
-                        style: Theme.of(context).textTheme.titleSmall,
+                      const SizedBox(width: defaultPadding / 2),
+                      Flexible(
+                        child: Text(
+                          formatPrice(order.total),
+                          textAlign: TextAlign.end,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
                       ),
                     ],
                   ),
@@ -90,6 +102,7 @@ class OrderCard extends StatelessWidget {
             SvgPicture.asset(
               "assets/icons/miniRight.svg",
               height: 24,
+              width: 24,
               colorFilter: ColorFilter.mode(
                 Theme.of(context).dividerColor,
                 BlendMode.srcIn,

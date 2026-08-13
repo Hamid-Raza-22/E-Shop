@@ -6,7 +6,6 @@ import '../../../components/empty_state_view.dart';
 import '../../../constants.dart';
 import '../../../models/cart_item_model.dart';
 import '../../../repositories/cart_repository.dart';
-import '../../../repositories/order_repository.dart';
 import '../../../route/route_constants.dart';
 import 'components/cart_item_card.dart';
 import 'components/order_summary_card.dart';
@@ -69,17 +68,10 @@ class _CartScreenState extends State<CartScreen> {
     if (shouldRemove == true) _cart.remove(item);
   }
 
+  /// Cart is step 1 of checkout; the order is created on the payment screen.
   void _checkout() {
     if (_cart.isEmpty) return;
-    final order = OrderRepository.instance
-        .createFromCart(_cart.items, _cart.total);
-    _cart.clear();
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Order #${order.id} placed successfully")),
-    );
-    Navigator.pushNamed(context, ordersScreenRoute);
+    Navigator.pushNamed(context, paymentMethodScreenRoute);
   }
 
   @override

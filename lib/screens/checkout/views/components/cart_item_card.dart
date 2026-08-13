@@ -110,10 +110,17 @@ class CartItemCard extends StatelessWidget {
                         svgSrc: "assets/icons/Plus1.svg",
                         onPressed: onIncrement,
                       ),
-                      const Spacer(),
-                      Text(
-                        formatPrice(item.totalPrice),
-                        style: Theme.of(context).textTheme.titleSmall,
+                      const SizedBox(width: defaultPadding / 2),
+                      // Flexible so a long line total cannot overflow on
+                      // narrow screens.
+                      Expanded(
+                        child: Text(
+                          formatPrice(item.totalPrice),
+                          textAlign: TextAlign.end,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
                       ),
                     ],
                   ),

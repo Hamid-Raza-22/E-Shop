@@ -86,26 +86,36 @@ class ProductCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   priceAfetDiscount != null
+                      // Both prices are flexible so long values (e.g.
+                      // "$590.36 $650.62") cannot overflow the fixed-width card.
                       ? Row(
                           children: [
-                            Text(
-                              "\$$priceAfetDiscount",
-                              style: const TextStyle(
-                                color: Color(0xFF31B0D8),
-                                fontWeight: FontWeight.w500,
-                                fontSize: 12,
+                            Flexible(
+                              child: Text(
+                                "\$$priceAfetDiscount",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Color(0xFF31B0D8),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                             const SizedBox(width: defaultPadding / 4),
-                            Text(
-                              "\$$price",
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .color,
-                                fontSize: 10,
-                                decoration: TextDecoration.lineThrough,
+                            Flexible(
+                              child: Text(
+                                "\$$price",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .color,
+                                  fontSize: 10,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
                               ),
                             ),
                           ],

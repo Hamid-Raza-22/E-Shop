@@ -28,11 +28,14 @@ class SearchHistoryList extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Recent Searches",
-                style: Theme.of(context).textTheme.titleMedium,
+              Expanded(
+                child: Text(
+                  "Recent Searches",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
               TextButton(
                 onPressed: onClearAll,
