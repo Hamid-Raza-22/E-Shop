@@ -96,10 +96,13 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     //   return MaterialPageRoute(
     //     builder: (context) => const OtpScreen(),
     //   );
-    // case newPasswordScreenRoute:
-    //   return MaterialPageRoute(
-    //     builder: (context) => const SetNewPasswordScreen(),
-    //   );
+    case newPasswordScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) {
+          final email = settings.arguments as String? ?? "";
+          return SetNewPasswordScreen(email: email);
+        },
+      );
     // case doneResetPasswordScreenRoute:
     //   return MaterialPageRoute(
     //     builder: (context) => const DoneResetPasswordScreen(),
@@ -191,10 +194,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => const ProfileScreen(),
       );
-    // case getHelpScreenRoute:
-    //   return MaterialPageRoute(
-    //     builder: (context) => const GetHelpScreen(),
-    //   );
+    case getHelpScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => const GetHelpScreen(),
+      );
     // case chatScreenRoute:
     //   return MaterialPageRoute(
     //     builder: (context) => const ChatScreen(),
@@ -207,10 +210,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     //   return MaterialPageRoute(
     //     builder: (context) => const CurrentPasswordScreen(),
     //   );
-    // case editUserInfoScreenRoute:
-    //   return MaterialPageRoute(
-    //     builder: (context) => const EditUserInfoScreen(),
-    //   );
+    case editUserInfoScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => const EditUserInfoScreen(),
+      );
     case notificationsScreenRoute:
       return MaterialPageRoute(
         builder: (context) => const NotificationsScreen(),
@@ -287,18 +290,26 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => const CartScreen(),
       );
-    // case paymentMethodScreenRoute:
-    //   return MaterialPageRoute(
-    //     builder: (context) => const PaymentMethodScreen(),
-    //   );
-    // case addNewCardScreenRoute:
-    //   return MaterialPageRoute(
-    //     builder: (context) => const AddNewCardScreen(),
-    //   );
-    // case thanksForOrderScreenRoute:
-    //   return MaterialPageRoute(
-    //     builder: (context) => const ThanksForOrderScreen(),
-    //   );
+    case paymentMethodScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => const PaymentMethodScreen(),
+      );
+    case addNewCardScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => const AddNewCardScreen(),
+      );
+    case thanksForOrderScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) {
+          // Order id is passed so the screen can show it in the confirmation.
+          final orderId = settings.arguments as String?;
+          return ThanksForOrderScreen(orderId: orderId);
+        },
+      );
+    case sizeGuideScreenRoute:
+      return MaterialPageRoute(
+        builder: (context) => const SizeGuideScreen(),
+      );
     default:
       return MaterialPageRoute(
         // Make a screen for undefine
