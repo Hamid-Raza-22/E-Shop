@@ -16,7 +16,11 @@ class AddReviewResult {
 
 /// Add-review bottom sheet: star rating + review text with validation.
 class AddReviewSheet extends StatefulWidget {
-  const AddReviewSheet({super.key});
+  const AddReviewSheet({super.key, this.onSubmit});
+
+  /// Called with the validated result. Defaults to popping the route with the
+  /// result (bottom-sheet usage); the full-screen route passes its own handler.
+  final ValueChanged<AddReviewResult>? onSubmit;
 
   @override
   State<AddReviewSheet> createState() => _AddReviewSheetState();
@@ -44,13 +48,17 @@ class _AddReviewSheetState extends State<AddReviewSheet> {
     setState(() => _showRatingError = !isRatingValid);
     if (!isFormValid || !isRatingValid) return;
 
-    Navigator.pop(
-      context,
-      AddReviewResult(
-        rating: _rating,
-        review: _reviewController.text.trim(),
-      ),
+    final result = AddReviewResult(
+      rating: _rating,
+      review: _reviewController.text.trim(),
     );
+
+    final onSubmit = widget.onSubmit;
+    if (onSubmit != null) {
+      onSubmit(result);
+      return;
+    }
+    Navigator.pop(context, result);
   }
 
   @override

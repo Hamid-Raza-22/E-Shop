@@ -21,16 +21,19 @@ class _AddressesScreenState extends State<AddressesScreen> {
   final AddressRepository _repository = AddressRepository.instance;
   final TextEditingController _searchController = TextEditingController();
 
-  String _query = "";
+  /// A notifier (instead of setState) keeps the search field out of the rebuild
+  /// scope, so typing only rebuilds the address list.
+  final ValueNotifier<String> _query = ValueNotifier<String>("");
 
   @override
   void dispose() {
     _searchController.dispose();
+    _query.dispose();
     super.dispose();
   }
 
   List<AddressModel> _filteredAddresses() {
-    final term = _query.trim().toLowerCase();
+    final term = _query.value.trim().toLowerCase();
     final addresses = _repository.addresses;
     if (term.isEmpty) return addresses;
     return addresses
@@ -124,58 +127,60 @@ class _AddressesScreenState extends State<AddressesScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Address")),
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: _repository,
-          builder: (context, _) {
-            final addresses = _filteredAddresses();
+        child: Column(
+          children: [
+            // Kept outside the rebuild scope on purpose.
+            Padding(
+              padding: const EdgeInsets.all(defaultPadding),
+              child: SearchForm(
+                controller: _searchController,
+                hintText: "Find an address...",
+                onChanged: (value) => _query.value = value ?? "",
+                onTabFilter: () => _openAddressForm(),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+              child: _AddNewAddressButton(press: () => _openAddressForm()),
+            ),
+            Expanded(
+              child: ListenableBuilder(
+                listenable: Listenable.merge([_repository, _query]),
+                builder: (context, _) {
+                  final addresses = _filteredAddresses();
+                  final isSearching = _query.value.trim().isNotEmpty;
 
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(defaultPadding),
-                  child: SearchForm(
-                    controller: _searchController,
-                    hintText: "Find an address...",
-                    onChanged: (value) => setState(() => _query = value ?? ""),
-                    onTabFilter: () => _openAddressForm(),
-                  ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: defaultPadding),
-                  child: _AddNewAddressButton(press: () => _openAddressForm()),
-                ),
-                Expanded(
-                  child: addresses.isEmpty
-                      ? EmptyStateView(
-                          title: _query.trim().isEmpty
-                              ? "No saved addresses"
-                              : "No matching address",
-                          description: _query.trim().isEmpty
-                              ? "Add a delivery address so we know where to send your orders."
-                              : "Try a different search term or add a new address.",
-                          actionLabel: "Add new address",
-                          onAction: () => _openAddressForm(),
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.all(defaultPadding),
-                          itemCount: addresses.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: defaultPadding),
-                          itemBuilder: (context, index) {
-                            final address = addresses[index];
-                            return AddressCard(
-                              address: address,
-                              press: () => _openAddressForm(address: address),
-                              onAction: (action) =>
-                                  _handleAction(address, action),
-                            );
-                          },
-                        ),
-                ),
-              ],
-            );
-          },
+                  if (addresses.isEmpty) {
+                    return EmptyStateView(
+                      title: isSearching
+                          ? "No matching address"
+                          : "No saved addresses",
+                      description: isSearching
+                          ? "Try a different search term or add a new address."
+                          : "Add a delivery address so we know where to send your orders.",
+                      actionLabel: "Add new address",
+                      onAction: () => _openAddressForm(),
+                    );
+                  }
+
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(defaultPadding),
+                    itemCount: addresses.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: defaultPadding),
+                    itemBuilder: (context, index) {
+                      final address = addresses[index];
+                      return AddressCard(
+                        address: address,
+                        press: () => _openAddressForm(address: address),
+                        onAction: (action) => _handleAction(address, action),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

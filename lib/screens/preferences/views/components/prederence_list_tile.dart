@@ -35,10 +35,9 @@ class PreferencesListTile extends StatelessWidget {
         ),
       ),
       trailing: CupertinoSwitch(
-        onChanged: (value) {
-          press;
-        },
-        activeColor: primaryColor,
+        // Was `press;` (a no-op statement) so the switch never did anything.
+        onChanged: (value) => press(),
+        activeTrackColor: primaryColor,
         value: isActive,
       ),
     );

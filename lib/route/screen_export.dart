@@ -36,6 +36,7 @@ export '/screens/checkout/views/thanks_for_order_screen.dart';
 export '/screens/error/views/no_internet_screen.dart';
 export '/screens/error/views/server_error_screen.dart';
 export '/screens/help/views/get_help_screen.dart';
+export '/screens/preferences/views/select_language_screen.dart';
 export '/screens/product/views/product_info_screen.dart';
 export '/screens/product/views/shipping_info_screen.dart';
 export '/screens/product/views/size_guide_screen.dart';

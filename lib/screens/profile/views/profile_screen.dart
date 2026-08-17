@@ -3,6 +3,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:shop/components/list_tile/divider_list_tile.dart';
 import 'package:shop/components/network_image_with_loader.dart';
 import 'package:shop/constants.dart';
+import 'package:shop/repositories/cart_repository.dart';
+import 'package:shop/repositories/notification_repository.dart';
 import 'package:shop/repositories/user_repository.dart';
 import 'package:shop/route/screen_export.dart';
 
@@ -11,6 +13,37 @@ import 'components/profile_menu_item_list_tile.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  /// Logging out clears session-scoped state (cart) so the next user does not
+  /// inherit it, then returns to the login screen.
+  Future<void> _confirmLogout(BuildContext context) async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Log out"),
+        content: const Text("Are you sure you want to log out?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Log out"),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout != true || !context.mounted) return;
+
+    CartRepository.instance.clear();
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      logInScreenRoute,
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,12 +99,17 @@ class ProfileScreen extends StatelessWidget {
           ProfileMenuListTile(
             text: "Returns",
             svgSrc: "assets/icons/Return.svg",
-            press: () {},
+            // Returns are started from an order.
+            press: () {
+              Navigator.pushNamed(context, ordersScreenRoute);
+            },
           ),
           ProfileMenuListTile(
             text: "Wishlist",
             svgSrc: "assets/icons/Wishlist.svg",
-            press: () {},
+            press: () {
+              Navigator.pushNamed(context, bookmarkScreenRoute);
+            },
           ),
           ProfileMenuListTile(
             text: "Addresses",
@@ -84,7 +122,7 @@ class ProfileScreen extends StatelessWidget {
             text: "Payment",
             svgSrc: "assets/icons/card.svg",
             press: () {
-              Navigator.pushNamed(context, emptyPaymentScreenRoute);
+              Navigator.pushNamed(context, paymentMethodScreenRoute);
             },
           ),
           ProfileMenuListTile(
@@ -103,12 +141,20 @@ class ProfileScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.titleSmall,
             ),
           ),
-          DividerListTileWithTrilingText(
-            svgSrc: "assets/icons/Notification.svg",
-            title: "Notification",
-            trilingText: "Off",
-            press: () {
-              Navigator.pushNamed(context, enableNotificationScreenRoute);
+          // Trailing text reflects the real notification opt-in state.
+          ListenableBuilder(
+            listenable: NotificationRepository.instance,
+            builder: (context, _) {
+              return DividerListTileWithTrilingText(
+                svgSrc: "assets/icons/Notification.svg",
+                title: "Notification",
+                trilingText: NotificationRepository.instance.isPermissionGranted
+                    ? "On"
+                    : "Off",
+                press: () {
+                  Navigator.pushNamed(context, enableNotificationScreenRoute);
+                },
+              );
             },
           ),
           ProfileMenuListTile(
@@ -158,14 +204,16 @@ class ProfileScreen extends StatelessWidget {
           ProfileMenuListTile(
             text: "FAQ",
             svgSrc: "assets/icons/FAQ.svg",
-            press: () {},
+            press: () {
+              Navigator.pushNamed(context, getHelpScreenRoute);
+            },
             isShowDivider: false,
           ),
           const SizedBox(height: defaultPadding),
 
           // Log Out
           ListTile(
-            onTap: () {},
+            onTap: () => _confirmLogout(context),
             minLeadingWidth: 24,
             leading: SvgPicture.asset(
               "assets/icons/Logout.svg",

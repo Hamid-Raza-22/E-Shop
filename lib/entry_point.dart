@@ -2,6 +2,8 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shop/constants.dart';
+import 'package:shop/repositories/cart_repository.dart';
+import 'package:shop/repositories/notification_repository.dart';
 import 'package:shop/route/screen_export.dart';
 
 class EntryPoint extends StatefulWidget {
@@ -69,12 +71,14 @@ class _EntryPointState extends State<EntryPoint> {
             onPressed: () {
               Navigator.pushNamed(context, notificationsScreenRoute);
             },
-            icon: SvgPicture.asset(
-              "assets/icons/Notification.svg",
-              height: 24,
-              colorFilter: ColorFilter.mode(
-                  Theme.of(context).textTheme.bodyLarge!.color!,
-                  BlendMode.srcIn),
+            icon: _UnreadNotificationIcon(
+              child: SvgPicture.asset(
+                "assets/icons/Notification.svg",
+                height: 24,
+                colorFilter: ColorFilter.mode(
+                    Theme.of(context).textTheme.bodyLarge!.color!,
+                    BlendMode.srcIn),
+              ),
             ),
           ),
         ],
@@ -132,8 +136,11 @@ class _EntryPointState extends State<EntryPoint> {
               label: "Bookmark",
             ),
             BottomNavigationBarItem(
-              icon: svgIcon("assets/icons/Bag.svg"),
-              activeIcon: svgIcon("assets/icons/Bag.svg", color: primaryColor),
+              // Only this icon rebuilds when the cart changes, not the screen.
+              icon: _CartTabIcon(child: svgIcon("assets/icons/Bag.svg")),
+              activeIcon: _CartTabIcon(
+                child: svgIcon("assets/icons/Bag.svg", color: primaryColor),
+              ),
               label: "Cart",
             ),
             BottomNavigationBarItem(
@@ -145,6 +152,53 @@ class _EntryPointState extends State<EntryPoint> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// App-bar bell with a live unread-count badge.
+class _UnreadNotificationIcon extends StatelessWidget {
+  const _UnreadNotificationIcon({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: NotificationRepository.instance,
+      builder: (context, _) {
+        final count = NotificationRepository.instance.unreadCount;
+        return Badge(
+          isLabelVisible: count > 0,
+          label: Text("$count"),
+          child: child,
+        );
+      },
+    );
+  }
+}
+
+/// Cart tab icon with a live item-count badge.
+///
+/// Kept as its own widget so cart updates rebuild just the badge instead of the
+/// whole [EntryPoint] subtree.
+class _CartTabIcon extends StatelessWidget {
+  const _CartTabIcon({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: CartRepository.instance,
+      builder: (context, _) {
+        final count = CartRepository.instance.itemCount;
+        return Badge(
+          isLabelVisible: count > 0,
+          label: Text("$count"),
+          child: child,
+        );
+      },
     );
   }
 }

@@ -25,10 +25,15 @@ class AddressFormResult {
 }
 
 class AddressFormSheet extends StatefulWidget {
-  const AddressFormSheet({super.key, this.address});
+  const AddressFormSheet({super.key, this.address, this.onSubmit});
 
   /// When non-null the sheet is in edit mode and fields are pre-filled.
   final AddressModel? address;
+
+  /// Called with the validated result. Defaults to popping the route with the
+  /// result, which is what the bottom-sheet usage expects; the full-screen route
+  /// passes its own handler instead.
+  final ValueChanged<AddressFormResult>? onSubmit;
 
   @override
   State<AddressFormSheet> createState() => _AddressFormSheetState();
@@ -76,18 +81,22 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
   void _submit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    Navigator.pop(
-      context,
-      AddressFormResult(
-        label: _labelController.text.trim(),
-        fullName: _fullNameController.text.trim(),
-        phone: _phoneController.text.trim(),
-        addressLine: _addressLineController.text.trim(),
-        city: _cityController.text.trim(),
-        zipCode: _zipController.text.trim(),
-        isDefault: _isDefault,
-      ),
+    final result = AddressFormResult(
+      label: _labelController.text.trim(),
+      fullName: _fullNameController.text.trim(),
+      phone: _phoneController.text.trim(),
+      addressLine: _addressLineController.text.trim(),
+      city: _cityController.text.trim(),
+      zipCode: _zipController.text.trim(),
+      isDefault: _isDefault,
     );
+
+    final onSubmit = widget.onSubmit;
+    if (onSubmit != null) {
+      onSubmit(result);
+      return;
+    }
+    Navigator.pop(context, result);
   }
 
   @override

@@ -25,17 +25,20 @@ class _OrdersScreenState extends State<OrdersScreen>
   late final TabController _tabController =
       TabController(length: 2, vsync: this);
 
-  String _query = "";
+  /// A notifier (instead of setState) keeps the search field itself out of the
+  /// rebuild scope, so typing only rebuilds the order lists.
+  final ValueNotifier<String> _query = ValueNotifier<String>("");
 
   @override
   void dispose() {
     _tabController.dispose();
     _searchController.dispose();
+    _query.dispose();
     super.dispose();
   }
 
   List<OrderModel> _filterOrders(List<OrderModel> orders) {
-    final term = _query.trim().toLowerCase();
+    final term = _query.value.trim().toLowerCase();
     if (term.isEmpty) return orders;
     return orders
         .where((order) =>
@@ -80,47 +83,53 @@ class _OrdersScreenState extends State<OrdersScreen>
         ),
       ),
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: _repository,
-          builder: (context, _) {
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(defaultPadding),
-                  child: SearchForm(
-                    controller: _searchController,
-                    hintText: "Find an order...",
-                    onChanged: (value) =>
-                        setState(() => _query = value ?? ""),
-                    onTabFilter: () => _tabController.animateTo(
-                        _tabController.index == 0 ? 1 : 0),
-                  ),
-                ),
-                _OrdersHistorySummary(repository: _repository),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
+        child: Column(
+          children: [
+            // Outside the rebuild scope on purpose.
+            Padding(
+              padding: const EdgeInsets.all(defaultPadding),
+              child: SearchForm(
+                controller: _searchController,
+                hintText: "Find an order...",
+                onChanged: (value) => _query.value = value ?? "",
+                onTabFilter: () => _tabController
+                    .animateTo(_tabController.index == 0 ? 1 : 0),
+              ),
+            ),
+            Expanded(
+              child: ListenableBuilder(
+                listenable: Listenable.merge([_repository, _query]),
+                builder: (context, _) {
+                  return Column(
                     children: [
-                      _OrdersList(
-                        orders: _filterOrders(_repository.activeOrders),
-                        emptyTitle: "No current orders",
-                        emptyDescription:
-                            "When you place an order it will show up here so you can track it.",
-                        onOrderTap: _openOrderDetails,
-                      ),
-                      _OrdersList(
-                        orders: _filterOrders(_repository.historyOrders),
-                        emptyTitle: "No order history",
-                        emptyDescription:
-                            "Delivered and canceled orders will be listed here.",
-                        onOrderTap: _openOrderDetails,
+                      _OrdersHistorySummary(repository: _repository),
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            _OrdersList(
+                              orders: _filterOrders(_repository.activeOrders),
+                              emptyTitle: "No current orders",
+                              emptyDescription:
+                                  "When you place an order it will show up here so you can track it.",
+                              onOrderTap: _openOrderDetails,
+                            ),
+                            _OrdersList(
+                              orders: _filterOrders(_repository.historyOrders),
+                              emptyTitle: "No order history",
+                              emptyDescription:
+                                  "Delivered and canceled orders will be listed here.",
+                              onOrderTap: _openOrderDetails,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
-                  ),
-                ),
-              ],
-            );
-          },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

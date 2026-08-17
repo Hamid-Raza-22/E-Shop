@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shop/components/cart_button.dart';
 import 'package:shop/components/custom_modal_bottom_sheet.dart';
 import 'package:shop/components/network_image_with_loader.dart';
+import 'package:shop/models/product_model.dart';
+import 'package:shop/repositories/cart_repository.dart';
 import 'package:shop/screens/product/views/added_to_cart_message_screen.dart';
 import 'package:shop/screens/product/views/components/product_list_tile.dart';
 import 'package:shop/screens/product/views/location_permission_store_availability_screen.dart';
@@ -15,27 +17,61 @@ import 'components/selected_size.dart';
 import 'components/unit_price.dart';
 
 class ProductBuyNowScreen extends StatefulWidget {
-  const ProductBuyNowScreen({super.key});
+  const ProductBuyNowScreen({super.key, this.product});
+
+  /// Product being added to the cart. Falls back to the demo product shown in
+  /// the design when the caller does not pass one.
+  final ProductModel? product;
 
   @override
-  _ProductBuyNowScreenState createState() => _ProductBuyNowScreenState();
+  State<ProductBuyNowScreen> createState() => _ProductBuyNowScreenState();
 }
 
 class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
+  static const List<Color> _colors = [
+    Color(0xFFEA6262),
+    Color(0xFFB1CC63),
+    Color(0xFFFFBF5F),
+    Color(0xFF9FE1DD),
+    Color(0xFFC482DB),
+  ];
+  static const List<String> _sizes = ["S", "M", "L", "XL", "XXL"];
+
+  late final ProductModel _product = widget.product ??
+      ProductModel(
+        image: productDemoImg1,
+        title: "Sleeveless Ruffle",
+        brandName: "Lipsy london",
+        price: 145,
+        priceAfetDiscount: 134.7,
+        dicountpercent: 7,
+      );
+
+  int _quantity = 1;
+  int _selectedColorIndex = 2;
+  int _selectedSizeIndex = 1;
+
+  double get _unitPrice => _product.priceAfetDiscount ?? _product.price;
+
+  double get _totalPrice => _unitPrice * _quantity;
+
+  void _addToCart() {
+    CartRepository.instance.add(_product, quantity: _quantity);
+    customModalBottomSheet(
+      context,
+      isDismissible: false,
+      child: const AddedToCartMessageScreen(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: CartButton(
-        price: 269.4,
+        price: _totalPrice,
         title: "Add to cart",
         subTitle: "Total price",
-        press: () {
-          customModalBottomSheet(
-            context,
-            isDismissible: false,
-            child: const AddedToCartMessageScreen(),
-          );
-        },
+        press: _addToCart,
       ),
       body: Column(
         children: [
@@ -46,14 +82,26 @@ class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const BackButton(),
-                Text(
-                  "Sleeveless Ruffle",
-                  style: Theme.of(context).textTheme.titleSmall,
+                Expanded(
+                  child: Text(
+                    _product.title,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                 ),
                 IconButton(
                   onPressed: () {},
-                  icon: SvgPicture.asset("assets/icons/Bookmark.svg",
-                      color: Theme.of(context).textTheme.bodyLarge!.color),
+                  icon: SvgPicture.asset(
+                    "assets/icons/Bookmark.svg",
+                    height: 24,
+                    width: 24,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).textTheme.bodyLarge!.color!,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -61,12 +109,13 @@ class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
           Expanded(
             child: CustomScrollView(
               slivers: [
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: defaultPadding),
                     child: AspectRatio(
                       aspectRatio: 1.05,
-                      child: NetworkImageWithLoader(productDemoImg1),
+                      child: NetworkImageWithLoader(_product.image),
                     ),
                   ),
                 ),
@@ -76,16 +125,20 @@ class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: UnitPrice(
-                            price: 145,
-                            priceAfterDiscount: 134.7,
+                            price: _product.price,
+                            priceAfterDiscount: _product.priceAfetDiscount,
                           ),
                         ),
                         ProductQuantity(
-                          numOfItem: 2,
-                          onIncrement: () {},
-                          onDecrement: () {},
+                          numOfItem: _quantity,
+                          onIncrement: () => setState(() => _quantity++),
+                          onDecrement: () {
+                            // Minimum purchasable quantity is 1.
+                            if (_quantity <= 1) return;
+                            setState(() => _quantity--);
+                          },
                         ),
                       ],
                     ),
@@ -94,22 +147,17 @@ class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
                 const SliverToBoxAdapter(child: Divider()),
                 SliverToBoxAdapter(
                   child: SelectedColors(
-                    colors: const [
-                      Color(0xFFEA6262),
-                      Color(0xFFB1CC63),
-                      Color(0xFFFFBF5F),
-                      Color(0xFF9FE1DD),
-                      Color(0xFFC482DB),
-                    ],
-                    selectedColorIndex: 2,
-                    press: (value) {},
+                    colors: _colors,
+                    selectedColorIndex: _selectedColorIndex,
+                    press: (value) =>
+                        setState(() => _selectedColorIndex = value),
                   ),
                 ),
                 SliverToBoxAdapter(
                   child: SelectedSize(
-                    sizes: const ["S", "M", "L", "XL", "XXL"],
-                    selectedIndex: 1,
-                    press: (value) {},
+                    sizes: _sizes,
+                    selectedIndex: _selectedSizeIndex,
+                    press: (value) => setState(() => _selectedSizeIndex = value),
                   ),
                 ),
                 SliverPadding(
@@ -140,8 +188,9 @@ class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
                         const SizedBox(height: defaultPadding / 2),
-                        const Text(
-                            "Select a size to check store availability and In-Store pickup options.")
+                        Text(
+                          "Size ${_sizes[_selectedSizeIndex]} selected. Check store availability and In-Store pickup options.",
+                        )
                       ],
                     ),
                   ),

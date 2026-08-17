@@ -36,13 +36,24 @@ class AddedToCartMessageScreen extends StatelessWidget {
               const Spacer(flex: 2),
               OutlinedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, entryPointScreenRoute);
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    entryPointScreenRoute,
+                    (route) => route.isFirst,
+                  );
                 },
                 child: const Text("Continue shopping"),
               ),
               const SizedBox(height: defaultPadding),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Closes the product sheets and lands on the cart.
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    cartScreenRoute,
+                    (route) => route.isFirst,
+                  );
+                },
                 child: const Text("Checkout"),
               ),
               const Spacer(),
