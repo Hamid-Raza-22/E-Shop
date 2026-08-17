@@ -92,8 +92,8 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Stack(
               alignment: Alignment.bottomRight,
-              children: [
-                const SizedBox(
+              children: const [
+                SizedBox(
                   height: 40,
                   width: 40,
                   child: NetworkImageWithLoader(
@@ -101,7 +101,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     radius: 100,
                   ),
                 ),
-                const ChatActiveDot(),
+                ChatActiveDot(),
               ],
             ),
             const SizedBox(width: defaultPadding / 2),
@@ -154,7 +154,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 .textTheme
                                 .bodyLarge!
                                 .color!
-                                .withOpacity(0.05),
+                                .withValues(alpha: 0.05),
                         borderRadius: const BorderRadius.all(
                             Radius.circular(defaultBorderRadious)),
                       ),

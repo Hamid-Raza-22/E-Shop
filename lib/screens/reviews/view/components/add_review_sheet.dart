@@ -102,7 +102,7 @@ class _AddReviewSheetState extends State<AddReviewSheet> {
                         .textTheme
                         .bodyLarge!
                         .color!
-                        .withOpacity(0.08),
+                        .withValues(alpha: 0.08),
                     glow: false,
                     allowHalfRating: true,
                     onRatingUpdate: (value) => setState(() {

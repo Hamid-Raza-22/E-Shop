@@ -14,8 +14,6 @@ import 'components/product_info.dart';
 import 'components/product_list_tile.dart';
 import '../../../components/review_card.dart';
 import 'product_buy_now_screen.dart';
-import 'product_info_screen.dart';
-import 'shipping_info_screen.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   const ProductDetailsScreen({super.key, this.isProductAvailable = true});
@@ -53,7 +51,9 @@ class ProductDetailsScreen extends StatelessWidget {
                 IconButton(
                   onPressed: () {},
                   icon: SvgPicture.asset("assets/icons/Bookmark.svg",
-                      color: Theme.of(context).textTheme.bodyLarge!.color),
+                      colorFilter: ColorFilter.mode(
+                          Theme.of(context).textTheme.bodyLarge!.color!,
+                          BlendMode.srcIn)),
                 ),
               ],
             ),

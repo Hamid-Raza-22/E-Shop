@@ -89,7 +89,7 @@ class _CategoryImageCard extends StatelessWidget {
                 begin: Alignment.bottomCenter,
                 end: Alignment.center,
                 colors: [
-                  Colors.black.withOpacity(0.55),
+                  Colors.black.withValues(alpha: 0.55),
                   Colors.transparent,
                 ],
               ),

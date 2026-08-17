@@ -26,7 +26,7 @@ class UserReviewCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
-        color: Theme.of(context).textTheme.bodyLarge!.color!.withOpacity(0.035),
+        color: Theme.of(context).textTheme.bodyLarge!.color!.withValues(alpha: 0.035),
         borderRadius:
             const BorderRadius.all(Radius.circular(defaultBorderRadious)),
       ),
@@ -69,7 +69,7 @@ class UserReviewCard extends StatelessWidget {
             itemSize: 16,
             itemPadding: const EdgeInsets.only(right: defaultPadding / 4),
             unratedColor:
-                Theme.of(context).textTheme.bodyLarge!.color!.withOpacity(0.08),
+                Theme.of(context).textTheme.bodyLarge!.color!.withValues(alpha: 0.08),
             glow: false,
             allowHalfRating: true,
             ignoreGestures: true,
