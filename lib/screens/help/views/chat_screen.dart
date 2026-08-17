@@ -90,9 +90,9 @@ class _ChatScreenState extends State<ChatScreen> {
         titleSpacing: 0,
         title: Row(
           children: [
-            Stack(
+            const Stack(
               alignment: Alignment.bottomRight,
-              children: const [
+              children: [
                 SizedBox(
                   height: 40,
                   width: 40,
