@@ -4,6 +4,7 @@ import 'package:shop/components/cart_button.dart';
 import 'package:shop/components/custom_modal_bottom_sheet.dart';
 import 'package:shop/components/network_image_with_loader.dart';
 import 'package:shop/models/product_model.dart';
+import 'package:shop/repositories/bookmark_repository.dart';
 import 'package:shop/repositories/cart_repository.dart';
 import 'package:shop/screens/product/views/added_to_cart_message_screen.dart';
 import 'package:shop/screens/product/views/components/product_list_tile.dart';
@@ -91,17 +92,28 @@ class _ProductBuyNowScreenState extends State<ProductBuyNowScreen> {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: SvgPicture.asset(
-                    "assets/icons/Bookmark.svg",
-                    height: 24,
-                    width: 24,
-                    colorFilter: ColorFilter.mode(
-                      Theme.of(context).textTheme.bodyLarge!.color!,
-                      BlendMode.srcIn,
-                    ),
-                  ),
+                ListenableBuilder(
+                  listenable: BookmarkRepository.instance,
+                  builder: (context, _) {
+                    final isSaved =
+                        BookmarkRepository.instance.contains(_product);
+                    return IconButton(
+                      onPressed: () =>
+                          BookmarkRepository.instance.toggle(_product),
+                      tooltip: isSaved ? "Remove from saved" : "Save",
+                      icon: SvgPicture.asset(
+                        "assets/icons/Bookmark.svg",
+                        height: 24,
+                        width: 24,
+                        colorFilter: ColorFilter.mode(
+                          isSaved
+                              ? primaryColor
+                              : Theme.of(context).textTheme.bodyLarge!.color!,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
