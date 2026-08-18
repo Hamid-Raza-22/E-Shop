@@ -44,7 +44,8 @@ class NotifyMeCard extends StatelessWidget {
                   height: 40,
                   width: 40,
                   child: OutlinedButton(
-                    onPressed: () {},
+                    // Mirrors the switch so the icon is also a toggle.
+                    onPressed: () => onChanged(!isNotify),
                     style: OutlinedButton.styleFrom(
                       backgroundColor: primaryColor,
                       padding: EdgeInsets.zero,

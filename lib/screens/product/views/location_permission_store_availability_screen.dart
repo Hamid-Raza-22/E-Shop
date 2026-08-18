@@ -87,7 +87,19 @@ class LocationPermissonStoreAvailabilityScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: defaultPadding * 1.5),
                     ElevatedButton(
-                      onPressed: () {},
+                      // Opening the OS location settings requires a plugin
+                      // (e.g. permission_handler / app_settings) which is not a
+                      // dependency of this project, so the user is told instead
+                      // of silently doing nothing.
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Enable Location Services from your device settings",
+                            ),
+                          ),
+                        );
+                      },
                       child: const Text("Settings"),
                     )
                   ],

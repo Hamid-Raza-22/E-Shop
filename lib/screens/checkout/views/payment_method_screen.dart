@@ -9,6 +9,7 @@ import '../../../repositories/address_repository.dart';
 import '../../../repositories/cart_repository.dart';
 import '../../../repositories/order_repository.dart';
 import '../../../repositories/payment_repository.dart';
+import '../../../repositories/wallet_repository.dart';
 import '../../../route/route_constants.dart';
 import '../../../utils/formatters.dart';
 import 'add_new_card_screen.dart';
@@ -20,6 +21,26 @@ class PaymentMethodScreen extends StatelessWidget {
   void _placeOrder(BuildContext context) {
     final cart = CartRepository.instance;
     if (cart.isEmpty) return;
+
+    final payment = PaymentRepository.instance;
+
+    // Wallet payments must actually cover the total.
+    if (payment.selectedOption == PaymentOption.wallet) {
+      final paid = WalletRepository.instance.spend(
+        cart.total,
+        products: cart.items.map((item) => item.product).toList(),
+      );
+      if (!paid) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Wallet balance is too low (${formatPrice(WalletRepository.instance.balance)}). Top up or choose another method.",
+            ),
+          ),
+        );
+        return;
+      }
+    }
 
     final order =
         OrderRepository.instance.createFromCart(cart.items, cart.total);
@@ -42,7 +63,8 @@ class PaymentMethodScreen extends StatelessWidget {
       appBar: AppBar(title: const Text("Payment")),
       body: SafeArea(
         child: ListenableBuilder(
-          listenable: Listenable.merge([payment, cart]),
+          listenable: Listenable.merge(
+              [payment, cart, WalletRepository.instance]),
           builder: (context, _) {
             return ListView(
               padding: const EdgeInsets.all(defaultPadding),
@@ -121,6 +143,11 @@ class PaymentMethodScreen extends StatelessWidget {
                           ),
                         ),
                         title: Text(option.label),
+                        subtitle: option == PaymentOption.wallet
+                            ? Text(
+                                "Balance ${formatPrice(WalletRepository.instance.balance)}",
+                              )
+                            : null,
                         trailing: payment.selectedOption == option
                             ? const CheckMark()
                             : null,

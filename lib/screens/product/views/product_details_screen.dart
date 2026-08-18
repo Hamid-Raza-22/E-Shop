@@ -17,11 +17,16 @@ import 'components/product_list_tile.dart';
 import '../../../components/review_card.dart';
 import 'product_buy_now_screen.dart';
 
-class ProductDetailsScreen extends StatelessWidget {
+class ProductDetailsScreen extends StatefulWidget {
   const ProductDetailsScreen({super.key, this.isProductAvailable = true});
 
   final bool isProductAvailable;
 
+  @override
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   /// Product represented by this screen's static content, used for the cart and
   /// bookmark actions until a real product id is passed through the route.
   static final ProductModel _product = ProductModel(
@@ -32,6 +37,11 @@ class ProductDetailsScreen extends StatelessWidget {
     priceAfetDiscount: 140,
     dicountpercent: 4,
   );
+
+  /// Back-in-stock notification opt-in for the out-of-stock variant.
+  bool _isNotifyEnabled = false;
+
+  bool get isProductAvailable => widget.isProductAvailable;
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +61,17 @@ class ProductDetailsScreen extends StatelessWidget {
 
           /// If profuct is not available then show [NotifyMeCard]
           NotifyMeCard(
-              isNotify: false,
-              onChanged: (value) {},
+              isNotify: _isNotifyEnabled,
+              onChanged: (value) {
+                setState(() => _isNotifyEnabled = value);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(value
+                        ? "We will notify you when this item is back in stock"
+                        : "Back-in-stock alerts turned off"),
+                  ),
+                );
+              },
             ),
       body: SafeArea(
         child: CustomScrollView(
