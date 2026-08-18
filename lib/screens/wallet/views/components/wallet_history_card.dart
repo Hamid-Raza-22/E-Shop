@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shop/components/product/secondary_product_card.dart';
+import 'package:shop/models/product_model.dart';
+import 'package:shop/route/route_constants.dart';
 
 import '../../../../constants.dart';
 
@@ -16,7 +18,9 @@ class WalletHistoryCard extends StatelessWidget {
   final bool isReturn;
   final String date;
   final double amount;
-  final List products;
+
+  /// Was an untyped `List`, so element members were resolved dynamically.
+  final List<ProductModel> products;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +76,8 @@ class WalletHistoryCard extends StatelessWidget {
                 title: products[index].title,
                 price: products[index].price,
                 priceAfetDiscount: products[index].priceAfetDiscount,
+                press: () => Navigator.pushNamed(
+                    context, productDetailsScreenRoute),
                 style: ElevatedButton.styleFrom(
                   maximumSize: const Size(double.infinity, 90),
                   padding: EdgeInsets.zero,
