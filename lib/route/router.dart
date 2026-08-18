@@ -192,10 +192,6 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => const UserInfoScreen(),
       );
-    // case currentPasswordScreenRoute:
-    //   return MaterialPageRoute(
-    //     builder: (context) => const CurrentPasswordScreen(),
-    //   );
     case editUserInfoScreenRoute:
       return MaterialPageRoute(
         builder: (context) => const EditUserInfoScreen(),
@@ -311,9 +307,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         builder: (context) => const SizeGuideScreen(),
       );
     default:
+      // Unknown route: show a real "not found" screen instead of silently
+      // dropping the user back on onboarding.
       return MaterialPageRoute(
-        // Make a screen for undefine
-        builder: (context) => const OnBordingScreen(),
+        builder: (context) => RouteNotFoundScreen(routeName: settings.name),
       );
   }
 }

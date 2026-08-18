@@ -15,6 +15,24 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  /// Terms must be accepted before the account can be created.
+  bool _hasAcceptedTerms = false;
+
+  void _continue() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    if (!_hasAcceptedTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please accept the terms of service to continue"),
+        ),
+      );
+      return;
+    }
+
+    Navigator.pushNamed(context, signUpVerificationScreenRoute);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,8 +64,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Row(
                     children: [
                       Checkbox(
-                        onChanged: (value) {},
-                        value: false,
+                        onChanged: (value) => setState(
+                            () => _hasAcceptedTerms = value ?? false),
+                        value: _hasAcceptedTerms,
                       ),
                       Expanded(
                         child: Text.rich(
@@ -77,12 +96,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   const SizedBox(height: defaultPadding * 2),
                   ElevatedButton(
-                    onPressed: () {
-                      // There is 2 more screens while user complete their profile
-                      // afre sign up, it's available on the pro version get it now
-                      // 🔗 https://theflutterway.gumroad.com/l/fluttershop
-                      Navigator.pushNamed(context, entryPointScreenRoute);
-                    },
+                    onPressed: _continue,
                     child: const Text("Continue"),
                   ),
                   Row(

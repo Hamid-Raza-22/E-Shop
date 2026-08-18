@@ -58,6 +58,8 @@ class OnSaleScreen extends StatelessWidget {
                   BannerMWithCounter(
                     duration: const Duration(hours: 8),
                     text: "Super Flash Sale \n50% Off",
+                    // Already on the sale screen: scroll target is the list
+                    // below, so tapping the banner is a no-op by design.
                     press: () {},
                   ),
                   if (flashSale.isNotEmpty)

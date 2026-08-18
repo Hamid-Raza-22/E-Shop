@@ -96,3 +96,4 @@ export 'package:shop/screens/wallet/views/empty_wallet_screen.dart';
 // Error
 export 'package:shop/screens/error/views/no_internet_screen.dart';
 export 'package:shop/screens/error/views/server_error_screen.dart';
+export 'package:shop/screens/error/views/route_not_found_screen.dart';

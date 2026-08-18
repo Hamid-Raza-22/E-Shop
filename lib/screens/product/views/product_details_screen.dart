@@ -4,6 +4,8 @@ import 'package:shop/components/cart_button.dart';
 import 'package:shop/components/custom_modal_bottom_sheet.dart';
 import 'package:shop/components/product/product_card.dart';
 import 'package:shop/constants.dart';
+import 'package:shop/models/product_model.dart';
+import 'package:shop/repositories/bookmark_repository.dart';
 import 'package:shop/screens/product/views/product_returns_screen.dart';
 
 import 'package:shop/route/screen_export.dart';
@@ -20,6 +22,17 @@ class ProductDetailsScreen extends StatelessWidget {
 
   final bool isProductAvailable;
 
+  /// Product represented by this screen's static content, used for the cart and
+  /// bookmark actions until a real product id is passed through the route.
+  static final ProductModel _product = ProductModel(
+    image: productDemoImg1,
+    title: "Sleeveless Ruffle",
+    brandName: "LIPSY LONDON",
+    price: 145,
+    priceAfetDiscount: 140,
+    dicountpercent: 4,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +43,7 @@ class ProductDetailsScreen extends StatelessWidget {
                 customModalBottomSheet(
                   context,
                   height: MediaQuery.of(context).size.height * 0.92,
-                  child: const ProductBuyNowScreen(),
+                  child: ProductBuyNowScreen(product: _product),
                 );
               },
             )
@@ -48,12 +61,38 @@ class ProductDetailsScreen extends StatelessWidget {
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               floating: true,
               actions: [
-                IconButton(
-                  onPressed: () {},
-                  icon: SvgPicture.asset("assets/icons/Bookmark.svg",
-                      colorFilter: ColorFilter.mode(
-                          Theme.of(context).textTheme.bodyLarge!.color!,
-                          BlendMode.srcIn)),
+                // Live bookmark toggle backed by BookmarkRepository.
+                ListenableBuilder(
+                  listenable: BookmarkRepository.instance,
+                  builder: (context, _) {
+                    final isSaved =
+                        BookmarkRepository.instance.contains(_product);
+                    return IconButton(
+                      onPressed: () {
+                        final nowSaved =
+                            BookmarkRepository.instance.toggle(_product);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(nowSaved
+                                ? "Saved to your wishlist"
+                                : "Removed from your wishlist"),
+                          ),
+                        );
+                      },
+                      tooltip: isSaved ? "Remove from saved" : "Save",
+                      icon: SvgPicture.asset(
+                        "assets/icons/Bookmark.svg",
+                        height: 24,
+                        width: 24,
+                        colorFilter: ColorFilter.mode(
+                          isSaved
+                              ? primaryColor
+                              : Theme.of(context).textTheme.bodyLarge!.color!,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -151,7 +190,8 @@ class ProductDetailsScreen extends StatelessWidget {
                       price: 24.65,
                       priceAfetDiscount: index.isEven ? 20.99 : null,
                       dicountpercent: index.isEven ? 25 : null,
-                      press: () {},
+                      press: () => Navigator.pushNamed(
+                          context, productDetailsScreenRoute),
                     ),
                   ),
                 ),

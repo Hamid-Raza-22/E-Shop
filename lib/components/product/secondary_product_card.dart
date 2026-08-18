@@ -26,7 +26,9 @@ class SecondaryProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      onPressed: () {},
+      // Was hardcoded to an empty callback, so the `press` parameter was
+      // silently ignored and these cards were never tappable.
+      onPressed: press,
       style: style ??
           OutlinedButton.styleFrom(
               minimumSize: const Size(256, 114),

@@ -6,6 +6,7 @@ import 'package:shop/components/Banner/M/banner_m_style_2.dart';
 import 'package:shop/components/Banner/M/banner_m_style_3.dart';
 import 'package:shop/components/Banner/M/banner_m_style_4.dart';
 import 'package:shop/components/dot_indicators.dart';
+import 'package:shop/route/route_constants.dart';
 
 import '../../../../constants.dart';
 
@@ -23,37 +24,46 @@ class _OffersCarouselState extends State<OffersCarousel> {
   late PageController _pageController;
   late Timer _timer;
 
-  // Offers List
-  List offers = [
-    BannerMStyle1(
-      text: "New items with \nFree shipping",
-      press: () {},
-    ),
-    BannerMStyle2(
-      title: "Black \nfriday",
-      subtitle: "Collection",
-      discountParcent: 50,
-      press: () {},
-    ),
-    BannerMStyle3(
-      title: "Grab \nyours now",
-      discountParcent: 50,
-      press: () {},
-    ),
-    BannerMStyle4(
-      // image: , user your image
-      title: "SUMMER \nSALE",
-      subtitle: "SPECIAL OFFER",
-      discountParcent: 80,
-      press: () {},
-    ),
-  ];
+  /// Number of banners in the carousel.
+  ///
+  /// The banners themselves are built in [build] (not in a field) so each one
+  /// has a valid `context` to navigate with.
+  static const int _offersCount = 4;
+
+  /// Every offer banner opens the on-sale screen.
+  void _openOffers(BuildContext context) =>
+      Navigator.pushNamed(context, onSaleScreenRoute);
+
+  List<Widget> _buildOffers(BuildContext context) => [
+        BannerMStyle1(
+          text: "New items with \nFree shipping",
+          press: () => _openOffers(context),
+        ),
+        BannerMStyle2(
+          title: "Black \nfriday",
+          subtitle: "Collection",
+          discountParcent: 50,
+          press: () => _openOffers(context),
+        ),
+        BannerMStyle3(
+          title: "Grab \nyours now",
+          discountParcent: 50,
+          press: () => _openOffers(context),
+        ),
+        BannerMStyle4(
+          // image: , user your image
+          title: "SUMMER \nSALE",
+          subtitle: "SPECIAL OFFER",
+          discountParcent: 80,
+          press: () => _openOffers(context),
+        ),
+      ];
 
   @override
   void initState() {
     _pageController = PageController(initialPage: 0);
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
-      if (_selectedIndex < offers.length - 1) {
+      if (_selectedIndex < _offersCount - 1) {
         _selectedIndex++;
       } else {
         _selectedIndex = 0;
@@ -77,6 +87,8 @@ class _OffersCarouselState extends State<OffersCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    final offers = _buildOffers(context);
+
     return AspectRatio(
       aspectRatio: 1.87,
       child: Stack(

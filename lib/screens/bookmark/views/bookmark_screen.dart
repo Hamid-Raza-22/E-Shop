@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shop/components/empty_state_view.dart';
 import 'package:shop/components/product/product_card.dart';
-import 'package:shop/models/product_model.dart';
+import 'package:shop/repositories/bookmark_repository.dart';
 import 'package:shop/route/route_constants.dart';
 
 import '../../../constants.dart';
@@ -10,41 +12,102 @@ class BookmarkScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final repository = BookmarkRepository.instance;
+
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // While loading use 👇
-          //  BookMarksSlelton(),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: defaultPadding, vertical: defaultPadding),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200.0,
-                mainAxisSpacing: defaultPadding,
-                crossAxisSpacing: defaultPadding,
-                childAspectRatio: 0.66,
+      body: ListenableBuilder(
+        listenable: repository,
+        builder: (context, _) {
+          final products = repository.products;
+
+          if (products.isEmpty) {
+            return EmptyStateView(
+              title: "No saved items",
+              description:
+                  "Tap the bookmark icon on any product to save it here for later.",
+              actionLabel: "Browse products",
+              onAction: () => Navigator.pushNamed(context, homeScreenRoute),
+            );
+          }
+
+          return CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.only(
+                  left: defaultPadding,
+                  right: defaultPadding,
+                  top: defaultPadding,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "${products.length} saved item${products.length == 1 ? "" : "s"}",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: repository.clear,
+                        child: const Text("Clear all"),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  return ProductCard(
-                    image: demoPopularProducts[index].image,
-                    brandName: demoPopularProducts[index].brandName,
-                    title: demoPopularProducts[index].title,
-                    price: demoPopularProducts[index].price,
-                    priceAfetDiscount:
-                        demoPopularProducts[index].priceAfetDiscount,
-                    dicountpercent: demoPopularProducts[index].dicountpercent,
-                    press: () {
-                      Navigator.pushNamed(context, productDetailsScreenRoute);
+              SliverPadding(
+                padding: const EdgeInsets.all(defaultPadding),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200.0,
+                    mainAxisSpacing: defaultPadding,
+                    crossAxisSpacing: defaultPadding,
+                    childAspectRatio: 0.66,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                      final product = products[index];
+                      return Stack(
+                        children: [
+                          ProductCard(
+                            image: product.image,
+                            brandName: product.brandName,
+                            title: product.title,
+                            price: product.price,
+                            priceAfetDiscount: product.priceAfetDiscount,
+                            dicountpercent: product.dicountpercent,
+                            press: () {
+                              Navigator.pushNamed(
+                                  context, productDetailsScreenRoute);
+                            },
+                          ),
+                          // Quick "unsave" action on each card.
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            child: IconButton(
+                              onPressed: () => repository.remove(product),
+                              tooltip: "Remove from saved",
+                              icon: SvgPicture.asset(
+                                "assets/icons/Close.svg",
+                                height: 14,
+                                colorFilter: const ColorFilter.mode(
+                                  greyColor,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
                     },
-                  );
-                },
-                childCount: demoPopularProducts.length,
+                    childCount: products.length,
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

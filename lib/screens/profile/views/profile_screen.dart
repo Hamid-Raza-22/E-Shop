@@ -72,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(
                 horizontal: defaultPadding, vertical: defaultPadding * 1.5),
             child: GestureDetector(
-              onTap: () {},
+              onTap: () => Navigator.pushNamed(context, onSaleScreenRoute),
               child: const AspectRatio(
                 aspectRatio: 1.8,
                 child:
@@ -183,7 +183,10 @@ class ProfileScreen extends StatelessWidget {
           ProfileMenuListTile(
             text: "Location",
             svgSrc: "assets/icons/Location.svg",
-            press: () {},
+            // Delivery location is managed through the address book.
+            press: () {
+              Navigator.pushNamed(context, addressesScreenRoute);
+            },
           ),
           const SizedBox(height: defaultPadding),
           Padding(

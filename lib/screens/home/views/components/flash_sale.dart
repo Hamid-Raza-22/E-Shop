@@ -21,7 +21,7 @@ class FlashSale extends StatelessWidget {
         BannerMWithCounter(
           duration: const Duration(hours: 8),
           text: "Super Flash Sale \n50% Off",
-          press: () {},
+          press: () => Navigator.pushNamed(context, onSaleScreenRoute),
         ),
         const SizedBox(height: defaultPadding / 2),
         Padding(
