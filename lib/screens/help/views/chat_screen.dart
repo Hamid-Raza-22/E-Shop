@@ -34,7 +34,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final List<_ChatMessage> _messages = [
     _ChatMessage(
-      text: "Hi! I'm Ali from Shoplon support. How can I help you today?",
+      text: "Hi! I'm Ali from GOGGUZ support. How can I help you today?",
       isMine: false,
       sentAt: DateTime.now().subtract(const Duration(minutes: 3)),
     ),
@@ -111,7 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Shoplon support",
+                    "GOGGUZ support",
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   Text(

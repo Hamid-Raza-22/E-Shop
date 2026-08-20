@@ -20,7 +20,7 @@ extension PaymentOptionInfo on PaymentOption {
       case PaymentOption.cashOnDelivery:
         return "Cash on delivery";
       case PaymentOption.wallet:
-        return "Shoplon wallet";
+        return "GOGGUZ wallet";
     }
   }
 

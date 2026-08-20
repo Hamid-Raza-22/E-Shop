@@ -133,7 +133,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Shoplon"),
+        title: const Text("GOGGUZ"),
         actions: [
           IconButton(
             onPressed: () => Navigator.pop(context),

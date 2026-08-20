@@ -132,7 +132,7 @@ class NotificationRepository extends ChangeNotifier {
       ),
       NotificationModel(
         id: "n4",
-        title: "Welcome to Shoplon",
+        title: "Welcome to GOGGUZ",
         description: "Complete your profile to get personalised picks.",
         date: now.subtract(const Duration(days: 4)),
         isRead: true,
