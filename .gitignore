@@ -39,5 +39,14 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# JSON files
+*.json
+
+# Environment variables
+.env*
+
+# Firebase configuration
+lib/firebase_options.dart
+
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
