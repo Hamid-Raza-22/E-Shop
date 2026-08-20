@@ -42,11 +42,20 @@ void main() {
     "KidsScreen": () => const KidsScreen(),
     "OnSaleScreen": () => const OnSaleScreen(),
     "SizeGuideScreen": () => const SizeGuideScreen(),
+  };
+
+  // These are bottom-sheet bodies, not routes: in the app they get their
+  // Material ancestor from showModalBottomSheet, so the harness supplies one.
+  final sheets = <String, Widget Function()>{
     "ProductInfoScreen": () => const ProductInfoScreen(),
     "ShippingInfoScreen": () => const ShippingInfoScreen(),
   };
 
-  screens.forEach((name, builder) {
+  <String, Widget Function()>{
+    ...screens,
+    ...sheets.map((name, builder) =>
+        MapEntry(name, () => Scaffold(body: builder()))),
+  }.forEach((name, builder) {
     testWidgets("$name builds without BuyFullKit", (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 3.0;

@@ -19,6 +19,9 @@ class PaymentRepository extends ChangeNotifier {
   String? _selectedCardId;
   PaymentOption _selectedOption = PaymentOption.card;
 
+  /// CVV typed for the currently selected card. Never persisted anywhere.
+  String _cvv = "";
+
   List<PaymentCardModel> get cards => List.unmodifiable(_cards);
 
   bool get isEmpty => _cards.isEmpty;
@@ -30,9 +33,14 @@ class PaymentRepository extends ChangeNotifier {
   PaymentCardModel? get selectedCard =>
       _cards.where((card) => card.id == _selectedCardId).firstOrNull;
 
+  String get cvv => _cvv;
+
+  bool get isCvvValid => _cvv.length == 3 || _cvv.length == 4;
+
   /// True when the current selection is enough to place an order.
-  bool get canCheckout =>
-      _selectedOption != PaymentOption.card || selectedCard != null;
+  bool get canCheckout => _selectedOption != PaymentOption.card
+      ? true
+      : selectedCard != null && isCvvValid;
 
   String get selectionLabel {
     if (_selectedOption != PaymentOption.card) return _selectedOption.label;
@@ -43,12 +51,31 @@ class PaymentRepository extends ChangeNotifier {
   void selectOption(PaymentOption option) {
     if (_selectedOption == option) return;
     _selectedOption = option;
+    _cvv = "";
     notifyListeners();
   }
 
   void selectCard(String id) {
+    if (_selectedOption == PaymentOption.card && _selectedCardId == id) return;
     _selectedOption = PaymentOption.card;
     _selectedCardId = id;
+    // A CVV belongs to a single card, so it never carries over.
+    _cvv = "";
+    notifyListeners();
+  }
+
+  void setCvv(String value) {
+    final wasValid = isCvvValid;
+    _cvv = value.trim();
+    // Only rebuild when the checkout button's enabled state can change,
+    // so the field isn't rebuilt on every keystroke.
+    if (wasValid != isCvvValid) notifyListeners();
+  }
+
+  /// Called once an order is placed so the CVV doesn't linger in memory.
+  void clearCvv() {
+    if (_cvv.isEmpty) return;
+    _cvv = "";
     notifyListeners();
   }
 

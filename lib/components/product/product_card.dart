@@ -75,16 +75,23 @@ class ProductCard extends StatelessWidget {
                         .copyWith(fontSize: 10),
                   ),
                   const SizedBox(height: defaultPadding / 2),
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall!
-                        .copyWith(fontSize: 12),
+                  // Expanded (instead of a fixed-height title + Spacer) keeps
+                  // the price pinned to the bottom while letting the title
+                  // give up room, so larger text scales cannot overflow.
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall!
+                            .copyWith(fontSize: 12),
+                      ),
+                    ),
                   ),
-                  const Spacer(),
                   priceAfetDiscount != null
                       // Both prices are flexible so long values (e.g.
                       // "$590.36 $650.62") cannot overflow the fixed-width card.

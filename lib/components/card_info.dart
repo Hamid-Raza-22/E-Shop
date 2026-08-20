@@ -12,12 +12,16 @@ class CardInfo extends StatelessWidget {
     required this.expiryDate,
     this.isSelected = false,
     this.press,
+    this.onCvvChanged,
     this.bgColor = primaryColor,
   });
 
   final String last4Digits, name, expiryDate;
   final bool isSelected;
   final VoidCallback? press;
+
+  /// Called as the CVV is typed while this card is selected.
+  final ValueChanged<String>? onCvvChanged;
   final Color bgColor;
 
   @override
@@ -123,10 +127,14 @@ class CardInfo extends StatelessWidget {
           if (isSelected)
             Form(
               child: TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
+                  final cvv = value?.trim() ?? "";
+                  if (cvv.isEmpty) return "Enter the CVV";
+                  if (cvv.length < 3) return "CVV must be 3 or 4 digits";
                   return null;
                 },
-                onSaved: (cvv) {},
+                onChanged: onCvvChanged,
                 keyboardType: TextInputType.number,
                 maxLength: 4,
                 inputFormatters: [

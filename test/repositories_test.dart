@@ -1,11 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shop/models/order_model.dart';
+import 'package:shop/models/payment_card_model.dart';
 import 'package:shop/repositories/address_repository.dart';
 import 'package:shop/repositories/cart_repository.dart';
 import 'package:shop/repositories/notification_repository.dart';
 import 'package:shop/repositories/order_repository.dart';
+import 'package:shop/repositories/payment_repository.dart';
 import 'package:shop/repositories/review_repository.dart';
 import 'package:shop/repositories/search_repository.dart';
+import 'package:shop/repositories/wallet_repository.dart';
 import 'package:shop/screens/product/views/components/inches_size_table.dart';
 
 void main() {
@@ -157,6 +160,75 @@ void main() {
       expect(after.total, before.total + 1);
       expect(after.countFor(5), before.countFor(5) + 1);
       expect(reviews.reviews.first.userName, "Tester");
+    });
+  });
+
+  group('PaymentRepository', () {
+    final payment = PaymentRepository.instance;
+
+    test('a card selection needs a valid CVV before checkout', () {
+      payment.selectCard(payment.cards.first.id);
+      expect(payment.canCheckout, isFalse);
+
+      payment.setCvv("12");
+      expect(payment.canCheckout, isFalse);
+
+      payment.setCvv("123");
+      expect(payment.canCheckout, isTrue);
+    });
+
+    test('switching payment option drops the CVV', () {
+      payment.selectCard(payment.cards.first.id);
+      payment.setCvv("123");
+
+      payment.selectOption(PaymentOption.cashOnDelivery);
+      expect(payment.cvv, isEmpty);
+      // Non-card options don't need a CVV.
+      expect(payment.canCheckout, isTrue);
+    });
+
+    test('adding a card stores only the last four digits', () {
+      payment.addCard(
+        holderName: "Test User",
+        cardNumber: "4111 1111 1111 9876",
+        expiryDate: "01/30",
+      );
+      final added = payment.cards.last;
+
+      expect(added.last4Digits, "9876");
+      expect(payment.selectedCardId, added.id);
+
+      payment.removeCard(added.id);
+      expect(payment.cards.any((card) => card.id == added.id), isFalse);
+    });
+  });
+
+  group('WalletRepository', () {
+    final wallet = WalletRepository.instance;
+
+    test('spending more than the balance is rejected', () {
+      final before = wallet.balance;
+      expect(wallet.spend(before + 1), isFalse);
+      expect(wallet.balance, before);
+    });
+
+    test('spend and top up adjust the balance and history', () {
+      final before = wallet.balance;
+      final transactions = wallet.transactions.length;
+
+      expect(wallet.spend(10), isTrue);
+      expect(wallet.balance, closeTo(before - 10, 0.001));
+
+      wallet.topUp(10);
+      expect(wallet.balance, closeTo(before, 0.001));
+      expect(wallet.transactions.length, transactions + 2);
+    });
+
+    test('non-positive amounts are ignored', () {
+      final before = wallet.balance;
+      expect(wallet.spend(0), isFalse);
+      wallet.topUp(-5);
+      expect(wallet.balance, before);
     });
   });
 

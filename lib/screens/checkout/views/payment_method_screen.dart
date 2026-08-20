@@ -45,6 +45,7 @@ class PaymentMethodScreen extends StatelessWidget {
     final order =
         OrderRepository.instance.createFromCart(cart.items, cart.total);
     cart.clear();
+    payment.clearCvv();
 
     Navigator.pushNamedAndRemoveUntil(
       context,
@@ -101,6 +102,7 @@ class PaymentMethodScreen extends StatelessWidget {
                             payment.selectedOption == PaymentOption.card &&
                                 payment.selectedCardId == card.id,
                         press: () => payment.selectCard(card.id),
+                        onCvvChanged: payment.setCvv,
                       ),
                     ),
                   ),
@@ -183,7 +185,9 @@ class PaymentMethodScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: defaultPadding / 2),
                     child: Text(
-                      "Select or add a card to continue.",
+                      payment.selectedCard == null
+                          ? "Select or add a card to continue."
+                          : "Enter the card's CVV to continue.",
                       textAlign: TextAlign.center,
                       style: Theme.of(context)
                           .textTheme
