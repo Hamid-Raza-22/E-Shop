@@ -48,7 +48,7 @@ class _EntryPointState extends State<EntryPoint> {
         leadingWidth: 0,
         centerTitle: false,
         title: SvgPicture.asset(
-          "assets/logo/Shoplon.svg",
+          "assets/logo/Gogguz.svg",
           colorFilter: ColorFilter.mode(
               Theme.of(context).iconTheme.color!, BlendMode.srcIn),
           height: 20,
