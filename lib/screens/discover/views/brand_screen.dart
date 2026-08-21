@@ -5,7 +5,7 @@ import '../../../components/network_image_with_loader.dart';
 import '../../../components/product/product_card.dart';
 import '../../../constants.dart';
 import '../../../models/product_model.dart';
-import '../../../repositories/search_repository.dart';
+import '../../../controllers/product_search_controller.dart';
 import '../../../route/route_constants.dart';
 
 /// Brand landing page: banner + every product from that brand.
@@ -20,7 +20,7 @@ class BrandScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final products = SearchRepository.instance.catalog
+    final products = ProductSearchController.to.catalog
         .where((product) =>
             product.brandName.toLowerCase() == brandName.toLowerCase())
         .toList();

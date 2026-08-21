@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/custom_modal_bottom_sheet.dart';
 import '../../../components/empty_state_view.dart';
 import '../../../constants.dart';
 import '../../../models/order_model.dart';
-import '../../../repositories/order_repository.dart';
+import '../../../controllers/order_controller.dart';
 import '../../../route/route_constants.dart';
 import 'components/order_card.dart';
 import 'components/order_details_sheet.dart';
@@ -16,27 +17,25 @@ class FilteredOrdersScreen extends StatelessWidget {
 
   final OrderStatus status;
 
-  String get _title {
-    switch (status) {
-      case OrderStatus.processing:
-        return "Processing orders";
-      case OrderStatus.delivered:
-        return "Delivered orders";
-      case OrderStatus.canceled:
-        return "Canceled orders";
-    }
-  }
+  String get _title => switch (status) {
+        OrderStatus.pending => "Pending orders",
+        OrderStatus.processing => "Processing orders",
+        OrderStatus.shipped => "Shipped orders",
+        OrderStatus.delivered => "Delivered orders",
+        OrderStatus.canceled => "Canceled orders",
+        OrderStatus.returned => "Returned orders",
+      };
 
-  String get _emptyDescription {
-    switch (status) {
-      case OrderStatus.processing:
-        return "You have no orders being processed right now.";
-      case OrderStatus.delivered:
-        return "None of your orders have been delivered yet.";
-      case OrderStatus.canceled:
-        return "You have not canceled any orders.";
-    }
-  }
+  String get _emptyDescription => switch (status) {
+        OrderStatus.pending => "You have no orders waiting to be confirmed.",
+        OrderStatus.processing =>
+          "You have no orders being processed right now.",
+        OrderStatus.shipped => "None of your orders are on their way yet.",
+        OrderStatus.delivered =>
+          "None of your orders have been delivered yet.",
+        OrderStatus.canceled => "You have not canceled any orders.",
+        OrderStatus.returned => "You have not returned any orders.",
+      };
 
   Future<void> _openDetails(BuildContext context, OrderModel order) async {
     await customModalBottomSheet(
@@ -45,21 +44,20 @@ class FilteredOrdersScreen extends StatelessWidget {
       child: OrderDetailsSheet(
         order: order,
         onCancel: (reason) =>
-            OrderRepository.instance.cancelOrder(order.id, reason: reason),
+            OrderController.to.cancelOrder(order.id, reason: reason),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final repository = OrderRepository.instance;
+    final repository = OrderController.to;
 
     return Scaffold(
       appBar: AppBar(title: Text(_title)),
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: repository,
-          builder: (context, _) {
+        child: GetBuilder<OrderController>(
+          builder: (controller) {
             final orders = repository.orders
                 .where((order) => order.status == status)
                 .toList();

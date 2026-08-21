@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../components/network_image_with_loader.dart';
 import '../../../../constants.dart';
 import '../../../../models/order_model.dart';
+import 'package:shop/components/order_status_chip.dart';
 import '../../../../utils/formatters.dart';
 
 /// Compact order row used by both the active and history tabs.
@@ -123,11 +124,10 @@ class OrderStatusTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, color) = switch (status) {
-      OrderStatus.processing => ("Processing", warningColor),
-      OrderStatus.delivered => ("Delivered", successColor),
-      OrderStatus.canceled => ("Canceled", errorColor),
-    };
+    // Label + colour live in the shared chip so the storefront and the owner
+    // dashboard can never drift apart.
+    final label = OrderStatusChip.labelOf(context, status);
+    final color = OrderStatusChip.colorOf(status);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),

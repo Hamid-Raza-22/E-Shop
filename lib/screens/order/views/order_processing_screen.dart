@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/empty_state_view.dart';
 import '../../../components/order_process.dart';
 import '../../../components/order_status_card.dart';
 import '../../../constants.dart';
 import '../../../models/order_model.dart';
-import '../../../repositories/order_repository.dart';
+import '../../../controllers/order_controller.dart';
 import '../../../route/route_constants.dart';
 import '../../../utils/formatters.dart';
 import 'cancel_order_screen.dart';
@@ -19,14 +20,13 @@ class OrderProcessingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repository = OrderRepository.instance;
+    final repository = OrderController.to;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Track order")),
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: repository,
-          builder: (context, _) {
+        child: GetBuilder<OrderController>(
+          builder: (controller) {
             final order = repository.findById(orderId);
 
             if (order == null) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../models/address_model.dart';
-import '../../../repositories/address_repository.dart';
+import '../../../controllers/address_controller.dart';
 import 'components/address_form_sheet.dart';
 
 /// Full-screen add/edit address route.
@@ -15,7 +15,7 @@ class AddNewAddressScreen extends StatelessWidget {
   final AddressModel? address;
 
   void _save(BuildContext context, AddressFormResult result) {
-    final repository = AddressRepository.instance;
+    final repository = AddressController.to;
     final existing = address;
 
     if (existing == null) {
@@ -29,7 +29,7 @@ class AddNewAddressScreen extends StatelessWidget {
         isDefault: result.isDefault,
       );
     } else {
-      repository.update(existing.copyWith(
+      repository.updateAddress(existing.copyWith(
         label: result.label,
         fullName: result.fullName,
         phone: result.phone,

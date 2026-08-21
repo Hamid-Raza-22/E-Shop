@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
-import '../../../repositories/wallet_repository.dart';
+import '../../../controllers/wallet_controller.dart';
 import '../../../route/route_constants.dart';
 import 'components/wallet_balance_card.dart';
 
@@ -20,7 +20,7 @@ class EmptyWalletScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(defaultPadding),
               child: WalletBalanceCard(
-                balance: WalletRepository.instance.balance,
+                balance: WalletController.to.balance,
                 onTabChargeBalance: () =>
                     Navigator.pushNamed(context, walletScreenRoute),
               ),

@@ -44,6 +44,8 @@ app.*.map.json
 
 # Environment variables
 .env*
+# ...but the template must be committed so new machines know what to fill in.
+!.env.example
 
 # Firebase configuration
 lib/firebase_options.dart

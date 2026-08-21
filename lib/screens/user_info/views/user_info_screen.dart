@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 import '../../../components/list_tile/divider_list_tile.dart';
 import '../../../components/network_image_with_loader.dart';
 import '../../../constants.dart';
-import '../../../repositories/user_repository.dart';
+import '../../../controllers/user_controller.dart';
 import 'edit_user_info_screen.dart';
 
 /// Read-only profile overview with an entry point into the edit form.
@@ -20,7 +21,7 @@ class UserInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repository = UserRepository.instance;
+    final repository = UserController.to;
 
     return Scaffold(
       appBar: AppBar(
@@ -41,9 +42,8 @@ class UserInfoScreen extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: repository,
-          builder: (context, _) {
+        child: GetBuilder<UserController>(
+          builder: (controller) {
             final user = repository.user;
 
             return ListView(

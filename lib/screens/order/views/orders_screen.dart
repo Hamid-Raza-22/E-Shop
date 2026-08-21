@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/custom_modal_bottom_sheet.dart';
 import '../../../components/empty_state_view.dart';
 import '../../../constants.dart';
 import '../../../models/order_model.dart';
-import '../../../repositories/order_repository.dart';
+import '../../../controllers/order_controller.dart';
 import '../../../route/route_constants.dart';
 import '../../search/views/components/search_form.dart';
 import 'components/order_card.dart';
@@ -19,7 +20,7 @@ class OrdersScreen extends StatefulWidget {
 
 class _OrdersScreenState extends State<OrdersScreen>
     with SingleTickerProviderStateMixin {
-  final OrderRepository _repository = OrderRepository.instance;
+  final OrderController _repository = OrderController.to;
   final TextEditingController _searchController = TextEditingController();
 
   late final TabController _tabController =
@@ -97,34 +98,40 @@ class _OrdersScreenState extends State<OrdersScreen>
               ),
             ),
             Expanded(
-              child: ListenableBuilder(
-                listenable: Listenable.merge([_repository, _query]),
-                builder: (context, _) {
-                  return Column(
-                    children: [
-                      _OrdersHistorySummary(repository: _repository),
-                      Expanded(
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            _OrdersList(
-                              orders: _filterOrders(_repository.activeOrders),
-                              emptyTitle: "No current orders",
-                              emptyDescription:
-                                  "When you place an order it will show up here so you can track it.",
-                              onOrderTap: _openOrderDetails,
+              child: GetBuilder<OrderController>(
+                builder: (controller) {
+                  return ListenableBuilder(
+                    listenable: _query,
+                    builder: (context, _) {
+                      return Column(
+                        children: [
+                          _OrdersHistorySummary(repository: _repository),
+                          Expanded(
+                            child: TabBarView(
+                              controller: _tabController,
+                              children: [
+                                _OrdersList(
+                                  orders:
+                                      _filterOrders(_repository.activeOrders),
+                                  emptyTitle: "No current orders",
+                                  emptyDescription:
+                                      "When you place an order it will show up here so you can track it.",
+                                  onOrderTap: _openOrderDetails,
+                                ),
+                                _OrdersList(
+                                  orders:
+                                      _filterOrders(_repository.historyOrders),
+                                  emptyTitle: "No order history",
+                                  emptyDescription:
+                                      "Delivered and canceled orders will be listed here.",
+                                  onOrderTap: _openOrderDetails,
+                                ),
+                              ],
                             ),
-                            _OrdersList(
-                              orders: _filterOrders(_repository.historyOrders),
-                              emptyTitle: "No order history",
-                              emptyDescription:
-                                  "Delivered and canceled orders will be listed here.",
-                              onOrderTap: _openOrderDetails,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
               ),
@@ -140,7 +147,7 @@ class _OrdersScreenState extends State<OrdersScreen>
 class _OrdersHistorySummary extends StatelessWidget {
   const _OrdersHistorySummary({required this.repository});
 
-  final OrderRepository repository;
+  final OrderController repository;
 
   @override
   Widget build(BuildContext context) {

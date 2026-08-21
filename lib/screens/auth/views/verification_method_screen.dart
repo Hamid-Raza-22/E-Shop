@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../components/check_mark.dart';
 import '../../../constants.dart';
-import '../../../repositories/user_repository.dart';
+import '../../../controllers/user_controller.dart';
 import 'otp_screen.dart';
 import 'set_new_password_screen.dart';
 
@@ -22,7 +22,7 @@ class _VerificationMethodScreenState extends State<VerificationMethodScreen> {
   VerificationMethod _method = VerificationMethod.email;
 
   String get _destination {
-    final user = UserRepository.instance.user;
+    final user = UserController.to.user;
     switch (_method) {
       case VerificationMethod.email:
         return user.email;
@@ -41,7 +41,7 @@ class _VerificationMethodScreenState extends State<VerificationMethodScreen> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  SetNewPasswordScreen(email: UserRepository.instance.user.email),
+                  SetNewPasswordScreen(email: UserController.to.user.email),
             ),
           ),
         ),
@@ -73,7 +73,7 @@ class _VerificationMethodScreenState extends State<VerificationMethodScreen> {
                   _MethodTile(
                     svgSrc: "assets/icons/Message.svg",
                     title: "Email",
-                    subtitle: UserRepository.instance.user.email,
+                    subtitle: UserController.to.user.email,
                     isSelected: _method == VerificationMethod.email,
                     press: () =>
                         setState(() => _method = VerificationMethod.email),
@@ -82,7 +82,7 @@ class _VerificationMethodScreenState extends State<VerificationMethodScreen> {
                   _MethodTile(
                     svgSrc: "assets/icons/Call.svg",
                     title: "SMS",
-                    subtitle: UserRepository.instance.user.phone,
+                    subtitle: UserController.to.user.phone,
                     isSelected: _method == VerificationMethod.sms,
                     press: () =>
                         setState(() => _method = VerificationMethod.sms),

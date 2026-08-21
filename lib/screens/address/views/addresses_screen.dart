@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 import '../../../components/custom_modal_bottom_sheet.dart';
 import '../../../components/empty_state_view.dart';
 import '../../../constants.dart';
 import '../../../models/address_model.dart';
-import '../../../repositories/address_repository.dart';
+import '../../../controllers/address_controller.dart';
 import '../../search/views/components/search_form.dart';
 import 'components/address_card.dart';
 import 'components/address_form_sheet.dart';
@@ -18,7 +19,7 @@ class AddressesScreen extends StatefulWidget {
 }
 
 class _AddressesScreenState extends State<AddressesScreen> {
-  final AddressRepository _repository = AddressRepository.instance;
+  final AddressController _repository = AddressController.to;
   final TextEditingController _searchController = TextEditingController();
 
   /// A notifier (instead of setState) keeps the search field out of the rebuild
@@ -65,7 +66,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
       );
       _showSnackBar("Address added");
     } else {
-      _repository.update(address.copyWith(
+      _repository.updateAddress(address.copyWith(
         label: result.label,
         fullName: result.fullName,
         phone: result.phone,
@@ -144,36 +145,41 @@ class _AddressesScreenState extends State<AddressesScreen> {
               child: _AddNewAddressButton(press: () => _openAddressForm()),
             ),
             Expanded(
-              child: ListenableBuilder(
-                listenable: Listenable.merge([_repository, _query]),
-                builder: (context, _) {
-                  final addresses = _filteredAddresses();
-                  final isSearching = _query.value.trim().isNotEmpty;
+              child: GetBuilder<AddressController>(
+                builder: (controller) {
+                  return ListenableBuilder(
+                    listenable: _query,
+                    builder: (context, _) {
+                      final addresses = _filteredAddresses();
+                      final isSearching = _query.value.trim().isNotEmpty;
 
-                  if (addresses.isEmpty) {
-                    return EmptyStateView(
-                      title: isSearching
-                          ? "No matching address"
-                          : "No saved addresses",
-                      description: isSearching
-                          ? "Try a different search term or add a new address."
-                          : "Add a delivery address so we know where to send your orders.",
-                      actionLabel: "Add new address",
-                      onAction: () => _openAddressForm(),
-                    );
-                  }
+                      if (addresses.isEmpty) {
+                        return EmptyStateView(
+                          title: isSearching
+                              ? "No matching address"
+                              : "No saved addresses",
+                          description: isSearching
+                              ? "Try a different search term or add a new address."
+                              : "Add a delivery address so we know where to send your orders.",
+                          actionLabel: "Add new address",
+                          onAction: () => _openAddressForm(),
+                        );
+                      }
 
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(defaultPadding),
-                    itemCount: addresses.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: defaultPadding),
-                    itemBuilder: (context, index) {
-                      final address = addresses[index];
-                      return AddressCard(
-                        address: address,
-                        press: () => _openAddressForm(address: address),
-                        onAction: (action) => _handleAction(address, action),
+                      return ListView.separated(
+                        padding: const EdgeInsets.all(defaultPadding),
+                        itemCount: addresses.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: defaultPadding),
+                        itemBuilder: (context, index) {
+                          final address = addresses[index];
+                          return AddressCard(
+                            address: address,
+                            press: () => _openAddressForm(address: address),
+                            onAction: (action) =>
+                                _handleAction(address, action),
+                          );
+                        },
                       );
                     },
                   );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shop/constants.dart';
-import 'package:shop/repositories/wallet_repository.dart';
+import 'package:shop/controllers/wallet_controller.dart';
 import 'package:shop/utils/formatters.dart';
 
 import 'components/wallet_balance_card.dart';
@@ -53,7 +54,7 @@ class WalletScreen extends StatelessWidget {
     );
 
     if (amount == null || !context.mounted) return;
-    WalletRepository.instance.topUp(amount);
+    WalletController.to.topUp(amount);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("${formatPrice(amount)} added to your wallet")),
     );
@@ -61,7 +62,7 @@ class WalletScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repository = WalletRepository.instance;
+    final repository = WalletController.to;
 
     return Scaffold(
       appBar: AppBar(
@@ -70,9 +71,8 @@ class WalletScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-          child: ListenableBuilder(
-            listenable: repository,
-            builder: (context, _) {
+          child: GetBuilder<WalletController>(
+            builder: (controller) {
               final transactions = repository.transactions;
 
               return CustomScrollView(

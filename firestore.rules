@@ -1,0 +1,81 @@
+rules_version = '2';
+
+// Security rules for the shop.
+//
+// The client-side `ADMIN_ALLOWED_EMAILS` list in .env is only a UI convenience:
+// THIS file is what actually protects the data. A user is an administrator if
+// and only if `admins/{their uid}` exists.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Admin registry: readable by the admin themselves so the dashboard can
+    // check its own access; only writable out-of-band (console/backend).
+    match /admins/{uid} {
+      allow get: if isOwner(uid);
+      allow list, write: if false;
+    }
+
+    // Catalog: shoppers see published products, the dashboard sees and edits
+    // everything.
+    match /products/{productId} {
+      allow read: if isAdmin() || resource.data.isPublished == true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Orders: a customer may read and create their own; only the shop may
+    // change status afterwards, so history cannot be rewritten by the buyer.
+    match /orders/{orderId} {
+      allow read: if isAdmin() || isOwner(resource.data.customerId);
+      allow create: if isSignedIn()
+        && request.resource.data.customerId == request.auth.uid
+        && request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin();
+    }
+
+    // Customer profiles: self-service for the shopper, full access for the shop.
+    // `ordersCount`/`totalSpent`/`isBlocked` are shop-owned counters, so the
+    // customer must not be able to set them.
+    match /customers/{customerId} {
+      allow read: if isAdmin() || isOwner(customerId);
+      allow create, update: if isAdmin()
+        || (isOwner(customerId)
+            && !request.resource.data.diff(resource.data).affectedKeys()
+                 .hasAny(['ordersCount', 'totalSpent', 'isBlocked']));
+      allow delete: if isAdmin();
+    }
+
+    // Reviews: anyone may read approved ones; a signed-in shopper may submit a
+    // review that starts unapproved; moderation is admin-only.
+    match /reviews/{reviewId} {
+      allow read: if isAdmin() || resource.data.isApproved == true;
+      allow create: if isSignedIn()
+        && request.resource.data.isApproved == false;
+      allow update, delete: if isAdmin();
+    }
+
+    // Promotions: readable so the storefront can validate a code, writable only
+    // by the shop.
+    match /promotions/{promotionId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Anything not matched above is denied.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

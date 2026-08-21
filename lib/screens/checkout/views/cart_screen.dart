@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:shop/l10n/app_localizations.dart';
 
 import '../../../components/cart_button.dart';
 import '../../../components/empty_state_view.dart';
 import '../../../constants.dart';
 import '../../../models/cart_item_model.dart';
-import '../../../repositories/cart_repository.dart';
+import '../../../controllers/cart_controller.dart';
 import '../../../route/route_constants.dart';
 import 'components/cart_item_card.dart';
 import 'components/order_summary_card.dart';
@@ -18,7 +20,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  final CartRepository _cart = CartRepository.instance;
+  final CartController _cart = CartController.to;
   final TextEditingController _couponController = TextEditingController();
 
   String? _appliedCoupon;
@@ -76,14 +78,14 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: _cart,
-      builder: (context, _) {
+    return GetBuilder<CartController>(
+      builder: (controller) {
+        final translations = AppLocalizations.of(context);
         final items = _cart.items;
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text("Cart"),
+            title: Text(translations.cartTitle),
             actions: [
               if (items.isNotEmpty)
                 IconButton(
@@ -104,15 +106,15 @@ class _CartScreenState extends State<CartScreen> {
               ? null
               : CartButton(
                   price: _cart.total,
-                  title: "Checkout",
-                  subTitle: "${_cart.itemCount} items",
+                  title: translations.checkoutTitle,
+                  subTitle: translations.cartItemsCount(_cart.itemCount),
                   press: _checkout,
                 ),
           body: items.isEmpty
               ? EmptyStateView(
-                  title: "Your cart is empty",
+                  title: translations.cartEmptyTitle,
                   description:
-                      "Looks like you have not added anything yet. Browse the shop and find something you love.",
+                      translations.cartEmptyMessage,
                   actionLabel: "Start shopping",
                   onAction: () =>
                       Navigator.pushNamed(context, homeScreenRoute),

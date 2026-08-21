@@ -3,7 +3,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../constants.dart';
-import '../../../../repositories/user_repository.dart';
+import '../../../../controllers/user_controller.dart';
 import 'review_product_card.dart';
 
 /// Result returned by [AddReviewSheet].
@@ -159,7 +159,7 @@ class _AddReviewSheetState extends State<AddReviewSheet> {
             padding: const EdgeInsets.all(defaultPadding),
             child: ElevatedButton(
               onPressed: _submit,
-              child: Text("Submit as ${UserRepository.instance.user.name}"),
+              child: Text("Submit as ${UserController.to.user.name}"),
             ),
           ),
         ),

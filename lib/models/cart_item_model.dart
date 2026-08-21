@@ -3,7 +3,7 @@ import 'product_model.dart';
 /// A single line item inside the cart.
 ///
 /// [quantity] is mutable because the cart screen updates it in place through
-/// [CartRepository]. Everything else is derived, so there is a single source of
+/// [CartController]. Everything else is derived, so there is a single source of
 /// truth for pricing.
 class CartItem {
   CartItem({

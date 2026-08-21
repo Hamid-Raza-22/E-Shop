@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/empty_state_view.dart';
-import '../../../repositories/search_repository.dart';
+import '../../../controllers/product_search_controller.dart';
 import 'components/search_history_list.dart';
 import 'search_screen.dart';
 
@@ -11,14 +12,13 @@ class SearchHistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repository = SearchRepository.instance;
+    final repository = ProductSearchController.to;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Recent searches")),
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: repository,
-          builder: (context, _) {
+        child: GetBuilder<ProductSearchController>(
+          builder: (controller) {
             if (repository.history.isEmpty) {
               return EmptyStateView(
                 title: "No recent searches",

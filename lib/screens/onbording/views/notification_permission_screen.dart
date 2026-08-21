@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
-import '../../../repositories/notification_repository.dart';
+import '../../../controllers/notification_controller.dart';
 import '../../../route/route_constants.dart';
 
 /// Onboarding step asking to opt into notifications.
 ///
 /// In-app opt-in only — the OS-level prompt needs `permission_handler`, which is
-/// NOT a dependency of this project (see [NotificationRepository]).
+/// NOT a dependency of this project (see [NotificationController]).
 class NotificationPermissionScreen extends StatelessWidget {
   const NotificationPermissionScreen({super.key});
 
@@ -52,7 +52,7 @@ class NotificationPermissionScreen extends StatelessWidget {
               const Spacer(flex: 2),
               ElevatedButton(
                 onPressed: () {
-                  NotificationRepository.instance.setPermissionGranted(true);
+                  NotificationController.to.setPermissionGranted(true);
                   _next(context);
                 },
                 child: const Text("Allow notifications"),

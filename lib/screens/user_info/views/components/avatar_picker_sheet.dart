@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import '../../../../components/check_mark.dart';
 import '../../../../components/network_image_with_loader.dart';
 import '../../../../constants.dart';
-import '../../../../repositories/user_repository.dart';
+import '../../../../controllers/user_controller.dart';
 
 /// Avatar chooser.
 ///
 /// Picking from the device gallery/camera would require the `image_picker`
 /// plugin, which is NOT a dependency of this project. Rather than fake a
 /// platform API, the user selects from a preset avatar list
-/// ([UserRepository.avatarOptions]). Adding `image_picker` to `pubspec.yaml`
+/// ([UserController.avatarOptions]). Adding `image_picker` to `pubspec.yaml`
 /// is all that is needed to swap this for a real gallery picker.
 class AvatarPickerSheet extends StatelessWidget {
   const AvatarPickerSheet({super.key, required this.selectedImageSrc});
@@ -46,9 +46,9 @@ class AvatarPickerSheet extends StatelessWidget {
               mainAxisSpacing: defaultPadding,
               crossAxisSpacing: defaultPadding,
             ),
-            itemCount: UserRepository.avatarOptions.length,
+            itemCount: UserController.avatarOptions.length,
             itemBuilder: (context, index) {
-              final imageSrc = UserRepository.avatarOptions[index];
+              final imageSrc = UserController.avatarOptions[index];
               final isSelected = imageSrc == selectedImageSrc;
 
               return InkWell(

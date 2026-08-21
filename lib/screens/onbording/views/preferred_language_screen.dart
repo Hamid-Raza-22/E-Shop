@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/check_mark.dart';
 import '../../../constants.dart';
-import '../../../repositories/settings_repository.dart';
+import '../../../controllers/localization_controller.dart';
 import '../../../route/route_constants.dart';
 
 /// Onboarding language picker shown before the login screen.
@@ -11,8 +12,6 @@ class PreferredLanguageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings = SettingsRepository.instance;
-
     return Scaffold(
       appBar: AppBar(title: const Text("Preferred language")),
       body: SafeArea(
@@ -36,24 +35,24 @@ class PreferredLanguageScreen extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: ListenableBuilder(
-                listenable: settings,
-                builder: (context, _) {
+              child: GetBuilder<LocalizationController>(
+                builder: (controller) {
                   return ListView(
-                    children: SettingsRepository.supportedLanguages
+                    children: LocalizationController.supportedLanguages
                         .map(
                           (language) => Column(
                             children: [
                               ListTile(
-                                onTap: () => settings.setLanguage(language.code),
+                                onTap: () =>
+                                    controller.setLanguage(language.code),
                                 leading: Text(
                                   language.flag,
                                   style: const TextStyle(fontSize: 24),
                                 ),
-                                title: Text(language.name),
+                                title: Text(language.englishName),
                                 subtitle: Text(language.nativeName),
                                 trailing:
-                                    settings.languageCode == language.code
+                                    controller.language.code == language.code
                                         ? const CheckMark()
                                         : null,
                               ),

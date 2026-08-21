@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/empty_state_view.dart';
-import '../../../repositories/notification_repository.dart';
+import '../../../controllers/notification_controller.dart';
 import '../../../route/route_constants.dart';
 import 'components/notification_list_tile.dart';
 
@@ -10,15 +11,14 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repository = NotificationRepository.instance;
+    final repository = NotificationController.to;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Notification"),
         actions: [
-          ListenableBuilder(
-            listenable: repository,
-            builder: (context, _) {
+          GetBuilder<NotificationController>(
+            builder: (controller) {
               if (repository.unreadCount == 0) return const SizedBox.shrink();
               return TextButton(
                 onPressed: repository.markAllAsRead,
@@ -35,9 +35,8 @@ class NotificationsScreen extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: repository,
-          builder: (context, _) {
+        child: GetBuilder<NotificationController>(
+          builder: (controller) {
             final notifications = repository.notifications;
 
             if (notifications.isEmpty) {

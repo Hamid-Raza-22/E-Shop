@@ -1,9 +1,11 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:shop/constants.dart';
-import 'package:shop/repositories/cart_repository.dart';
-import 'package:shop/repositories/notification_repository.dart';
+import 'package:shop/controllers/cart_controller.dart';
+import 'package:shop/controllers/notification_controller.dart';
+import 'package:shop/l10n/app_localizations.dart';
 import 'package:shop/route/screen_export.dart';
 
 class EntryPoint extends StatefulWidget {
@@ -26,6 +28,8 @@ class _EntryPointState extends State<EntryPoint> {
 
   @override
   Widget build(BuildContext context) {
+    final translations = AppLocalizations.of(context);
+
     SvgPicture svgIcon(String src, {Color? color}) {
       return SvgPicture.asset(
         src,
@@ -121,19 +125,19 @@ class _EntryPointState extends State<EntryPoint> {
             BottomNavigationBarItem(
               icon: svgIcon("assets/icons/Shop.svg"),
               activeIcon: svgIcon("assets/icons/Shop.svg", color: primaryColor),
-              label: "Shop",
+              label: translations.navHome,
             ),
             BottomNavigationBarItem(
               icon: svgIcon("assets/icons/Category.svg"),
               activeIcon:
                   svgIcon("assets/icons/Category.svg", color: primaryColor),
-              label: "Discover",
+              label: translations.navDiscover,
             ),
             BottomNavigationBarItem(
               icon: svgIcon("assets/icons/Bookmark.svg"),
               activeIcon:
                   svgIcon("assets/icons/Bookmark.svg", color: primaryColor),
-              label: "Bookmark",
+              label: translations.navBookmark,
             ),
             BottomNavigationBarItem(
               // Only this icon rebuilds when the cart changes, not the screen.
@@ -141,13 +145,13 @@ class _EntryPointState extends State<EntryPoint> {
               activeIcon: _CartTabIcon(
                 child: svgIcon("assets/icons/Bag.svg", color: primaryColor),
               ),
-              label: "Cart",
+              label: translations.navCart,
             ),
             BottomNavigationBarItem(
               icon: svgIcon("assets/icons/Profile.svg"),
               activeIcon:
                   svgIcon("assets/icons/Profile.svg", color: primaryColor),
-              label: "Profile",
+              label: translations.navProfile,
             ),
           ],
         ),
@@ -164,10 +168,9 @@ class _UnreadNotificationIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: NotificationRepository.instance,
-      builder: (context, _) {
-        final count = NotificationRepository.instance.unreadCount;
+    return GetBuilder<NotificationController>(
+      builder: (controller) {
+        final count = NotificationController.to.unreadCount;
         return Badge(
           isLabelVisible: count > 0,
           label: Text("$count"),
@@ -189,10 +192,9 @@ class _CartTabIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: CartRepository.instance,
-      builder: (context, _) {
-        final count = CartRepository.instance.itemCount;
+    return GetBuilder<CartController>(
+      builder: (controller) {
+        final count = CartController.to.itemCount;
         return Badge(
           isLabelVisible: count > 0,
           label: Text("$count"),

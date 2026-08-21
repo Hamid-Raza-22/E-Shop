@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 import '../../../components/Banner/M/banner_m_with_counter.dart';
 import '../../../components/empty_state_view.dart';
 import '../../../components/product/product_card.dart';
 import '../../../constants.dart';
 import '../../../models/product_model.dart';
-import '../../../repositories/cart_repository.dart';
+import '../../../controllers/cart_controller.dart';
 import '../../../route/route_constants.dart';
 
 /// On-sale screen: flash-sale countdown banner + discounted product sections.
@@ -30,10 +31,9 @@ class OnSaleScreen extends StatelessWidget {
           IconButton(
             onPressed: () => Navigator.pushNamed(context, cartScreenRoute),
             tooltip: "Cart",
-            icon: ListenableBuilder(
-              listenable: CartRepository.instance,
-              builder: (context, _) {
-                final count = CartRepository.instance.itemCount;
+            icon: GetBuilder<CartController>(
+              builder: (controller) {
+                final count = CartController.to.itemCount;
                 return Badge(
                   isLabelVisible: count > 0,
                   label: Text("$count"),

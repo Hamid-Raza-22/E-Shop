@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../components/custom_modal_bottom_sheet.dart';
 import '../../../components/empty_state_view.dart';
-import '../../../repositories/address_repository.dart';
+import '../../../controllers/address_controller.dart';
 import 'components/address_form_sheet.dart';
 
 class NoAddressScreen extends StatelessWidget {
@@ -17,7 +17,7 @@ class NoAddressScreen extends StatelessWidget {
 
     if (result is! AddressFormResult || !context.mounted) return;
 
-    AddressRepository.instance.add(
+    AddressController.to.add(
       label: result.label,
       fullName: result.fullName,
       phone: result.phone,

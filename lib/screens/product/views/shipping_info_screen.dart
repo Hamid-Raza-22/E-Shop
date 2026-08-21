@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 import '../../../constants.dart';
-import '../../../repositories/address_repository.dart';
+import '../../../controllers/address_controller.dart';
 import 'components/expandable_info_section.dart';
 
 /// "Shipping Information" bottom sheet content.
@@ -49,10 +50,9 @@ class ShippingInfoScreen extends StatelessWidget {
             padding: const EdgeInsets.all(defaultPadding),
             children: [
               // Shows the real default address from the shared repository.
-              ListenableBuilder(
-                listenable: AddressRepository.instance,
-                builder: (context, _) {
-                  final address = AddressRepository.instance.defaultAddress;
+              GetBuilder<AddressController>(
+                builder: (controller) {
+                  final address = AddressController.to.defaultAddress;
                   return Container(
                     padding: const EdgeInsets.all(defaultPadding),
                     decoration: BoxDecoration(

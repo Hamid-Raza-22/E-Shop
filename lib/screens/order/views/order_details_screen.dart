@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/empty_state_view.dart';
-import '../../../repositories/order_repository.dart';
+import '../../../controllers/order_controller.dart';
 import 'components/order_details_sheet.dart';
 
 /// Full-screen order details (same content as the bottom sheet variant).
@@ -12,13 +13,12 @@ class OrderDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repository = OrderRepository.instance;
+    final repository = OrderController.to;
 
     return Scaffold(
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: repository,
-          builder: (context, _) {
+        child: GetBuilder<OrderController>(
+          builder: (controller) {
             final order = repository.findById(orderId);
 
             if (order == null) {

@@ -1,0 +1,213 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Gogguz",
+  "@appTitle": { "description": "Application name shown in the OS task switcher" },
+
+  "actionSave": "Save",
+  "actionCancel": "Cancel",
+  "actionDelete": "Delete",
+  "actionEdit": "Edit",
+  "actionAdd": "Add",
+  "actionRetry": "Retry",
+  "actionClose": "Close",
+  "actionConfirm": "Confirm",
+  "actionApply": "Apply",
+  "actionReset": "Reset",
+  "actionRefresh": "Refresh",
+  "actionSeeAll": "See all",
+  "actionSearch": "Search",
+  "actionSignIn": "Sign in",
+  "actionSignOut": "Sign out",
+  "actionYes": "Yes",
+  "actionNo": "No",
+
+  "labelEmail": "E-mail",
+  "labelPassword": "Password",
+  "labelName": "Name",
+  "labelPhone": "Phone",
+  "labelStatus": "Status",
+  "labelDate": "Date",
+  "labelAll": "All",
+  "labelLoading": "Loading…",
+  "labelPrice": "Price",
+  "labelQuantity": "Quantity",
+  "labelSize": "Size",
+  "labelTotal": "Total",
+  "labelSubtotal": "Subtotal",
+  "labelShipping": "Shipping",
+  "labelDiscount": "Discount",
+
+  "validationRequired": "This field is required",
+  "validationInvalidEmail": "Enter a valid e-mail address",
+  "validationMinLength": "Must be at least {count} characters",
+  "@validationMinLength": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "errorGeneric": "Something went wrong. Please try again.",
+  "errorNoConnection": "No internet connection.",
+  "errorNotFound": "We couldn't find that page.",
+
+  "navHome": "Home",
+  "navDiscover": "Discover",
+  "navBookmark": "Bookmark",
+  "navProfile": "Profile",
+  "navCart": "Cart",
+
+  "storefrontOnSale": "On sale",
+  "storefrontKids": "Kids",
+  "storefrontSizeGuide": "Size guide",
+  "storefrontSearchHint": "Find something you love",
+  "storefrontAddToCart": "Add to cart",
+  "storefrontBuyNow": "Buy now",
+  "storefrontOutOfStock": "Out of stock",
+  "storefrontReviews": "Reviews",
+  "storefrontWallet": "Wallet",
+  "storefrontAddresses": "Addresses",
+  "storefrontNotifications": "Notifications",
+  "storefrontOrders": "Orders",
+
+  "cartTitle": "Cart",
+  "cartEmptyTitle": "Your cart is empty",
+  "cartEmptyMessage": "Browse the shop and add the pieces you like — they'll show up here.",
+  "cartItemsCount": "{count, plural, =0{No items} =1{1 item} other{{count} items}}",
+  "@cartItemsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "checkoutTitle": "Checkout",
+  "checkoutPlaceOrder": "Place order",
+  "checkoutPayAmount": "Pay {amount}",
+  "@checkoutPayAmount": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "checkoutSelectCard": "Select or add a card to continue.",
+  "checkoutEnterCvv": "Enter the card's CVV to continue.",
+
+  "settingsTitle": "Settings",
+  "settingsLanguage": "Language",
+  "settingsSelectLanguage": "Select language",
+  "settingsLanguageChanged": "Language changed to {language}",
+  "@settingsLanguageChanged": {
+    "placeholders": { "language": { "type": "String" } }
+  },
+  "settingsCurrency": "Currency",
+  "settingsTheme": "Appearance",
+  "settingsSupport": "Support",
+  "settingsAbout": "About",
+
+  "languageEnglish": "English",
+  "languageGerman": "German",
+  "languageUrdu": "Urdu",
+  "languageArabic": "Arabic",
+  "languageSpanish": "Spanish",
+  "languageFrench": "French",
+
+  "adminDashboard": "Dashboard",
+  "adminSignInTitle": "Owner sign in",
+  "adminSignInSubtitle": "Sign in with your administrator account to manage the shop.",
+  "adminAccessDenied": "Access denied",
+  "adminAccessDeniedMessage": "This account is not registered as a shop administrator.",
+  "adminWelcome": "Welcome back, {name}",
+  "@adminWelcome": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "adminNavOverview": "Overview",
+  "adminNavProducts": "Products",
+  "adminNavOrders": "Orders",
+  "adminNavCustomers": "Customers",
+  "adminNavReviews": "Reviews",
+  "adminNavPromotions": "Promotions",
+  "adminNavSettings": "Settings",
+
+  "adminKpiRevenueToday": "Revenue today",
+  "adminKpiRevenueTotal": "Total revenue",
+  "adminKpiOrders": "Orders",
+  "adminKpiAverageOrderValue": "Average order value",
+  "adminKpiNewCustomers": "New customers",
+  "adminKpiLowStock": "Low stock",
+  "adminSalesLastDays": "Sales — last {count} days",
+  "@adminSalesLastDays": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminTopProducts": "Top products",
+  "adminRecentOrders": "Recent orders",
+  "adminNoData": "No data yet",
+
+  "adminProductsTitle": "Products",
+  "adminProductAdd": "Add product",
+  "adminProductEdit": "Edit product",
+  "adminProductDelete": "Delete product",
+  "adminProductDeleteConfirm": "Delete “{title}”? This cannot be undone.",
+  "@adminProductDeleteConfirm": {
+    "placeholders": { "title": { "type": "String" } }
+  },
+  "adminProductSaved": "Product saved",
+  "adminProductDeleted": "Product deleted",
+  "adminProductNone": "No products yet. Add your first product to get started.",
+  "adminFieldTitle": "Title",
+  "adminFieldBrand": "Brand",
+  "adminFieldCategory": "Category",
+  "adminFieldDescription": "Description",
+  "adminFieldImageUrl": "Image URL",
+  "adminFieldStock": "Stock",
+  "adminFieldSku": "SKU",
+  "adminFieldDiscountPercent": "Discount %",
+  "adminFieldPublished": "Published",
+  "adminStatePublished": "Published",
+  "adminStateDraft": "Draft",
+  "adminStockLeft": "{count} left",
+  "@adminStockLeft": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "adminOrdersTitle": "Orders",
+  "adminOrderNumber": "Order {id}",
+  "@adminOrderNumber": {
+    "placeholders": { "id": { "type": "String" } }
+  },
+  "adminOrderUpdateStatus": "Update status",
+  "adminOrderStatusUpdated": "Order status updated",
+  "adminOrderNone": "No orders match this filter.",
+  "orderStatusPending": "Pending",
+  "orderStatusProcessing": "Processing",
+  "orderStatusShipped": "Shipped",
+  "orderStatusDelivered": "Delivered",
+  "orderStatusCanceled": "Canceled",
+  "orderStatusReturned": "Returned",
+
+  "adminCustomersTitle": "Customers",
+  "adminCustomerSince": "Customer since {date}",
+  "@adminCustomerSince": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "adminCustomerTotalSpent": "Total spent",
+  "adminCustomerOrders": "Orders placed",
+  "adminCustomerBlock": "Block customer",
+  "adminCustomerUnblock": "Unblock customer",
+  "adminCustomerBlocked": "Blocked",
+  "adminCustomerNone": "No customers yet.",
+
+  "adminReviewsTitle": "Reviews",
+  "adminReviewsPending": "Pending approval",
+  "adminReviewApprove": "Approve",
+  "adminReviewReject": "Reject",
+  "adminReviewNone": "Nothing to moderate.",
+
+  "adminPromotionsTitle": "Promotions",
+  "adminPromoCreate": "Create promotion",
+  "adminPromoCode": "Promo code",
+  "adminPromoPercentOff": "Percent off",
+  "adminPromoValidFrom": "Valid from",
+  "adminPromoValidTo": "Valid to",
+  "adminPromoUsageLimit": "Usage limit",
+  "adminPromoActive": "Active",
+  "adminPromoInactive": "Inactive",
+  "adminPromoNone": "No promotions yet.",
+
+  "adminSettingsStoreName": "Store name",
+  "adminSettingsCurrency": "Currency",
+  "adminSettingsSupportEmail": "Support e-mail",
+  "adminSettingsEnvironment": "Environment"
+}

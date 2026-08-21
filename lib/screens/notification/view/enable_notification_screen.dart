@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../constants.dart';
-import '../../../repositories/notification_repository.dart';
+import '../../../controllers/notification_controller.dart';
 import '../../../route/route_constants.dart';
 
 /// Notification opt-in screen.
@@ -15,7 +16,7 @@ class EnableNotificationScreen extends StatelessWidget {
   const EnableNotificationScreen({super.key});
 
   void _enableNotifications(BuildContext context) {
-    NotificationRepository.instance.setPermissionGranted(true);
+    NotificationController.to.setPermissionGranted(true);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Notifications enabled")),
     );
@@ -24,14 +25,13 @@ class EnableNotificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repository = NotificationRepository.instance;
+    final repository = NotificationController.to;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Notifications")),
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: repository,
-          builder: (context, _) {
+        child: GetBuilder<NotificationController>(
+          builder: (controller) {
             final isGranted = repository.isPermissionGranted;
 
             return Column(

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 import '../../../components/custom_modal_bottom_sheet.dart';
 import '../../../components/empty_state_view.dart';
 import '../../../components/review_card.dart';
 import '../../../constants.dart';
 import '../../../models/review_model.dart';
-import '../../../repositories/review_repository.dart';
-import '../../../repositories/user_repository.dart';
+import '../../../controllers/review_controller.dart';
+import '../../../controllers/user_controller.dart';
 import 'components/add_review_sheet.dart';
 import 'components/user_review_card.dart';
 
@@ -21,7 +22,7 @@ class ProductReviewsScreen extends StatefulWidget {
 }
 
 class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
-  final ReviewRepository _repository = ReviewRepository.instance;
+  final ReviewController _repository = ReviewController.to;
 
   ReviewSortOption _sortOption = ReviewSortOption.mostRecent;
 
@@ -54,7 +55,7 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
     if (result is! AddReviewResult || !mounted) return;
 
     _repository.add(
-      userName: UserRepository.instance.user.name,
+      userName: UserController.to.user.name,
       rating: result.rating,
       review: result.review,
     );
@@ -68,9 +69,8 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Reviews")),
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: _repository,
-          builder: (context, _) {
+        child: GetBuilder<ReviewController>(
+          builder: (controller) {
             final summary = _repository.summary;
             final reviews = _sortedReviews();
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../components/check_mark.dart';
 import '../../../constants.dart';
-import '../../../repositories/order_repository.dart';
+import '../../../controllers/order_controller.dart';
 import 'components/order_details_sheet.dart';
 
 /// Full-screen cancel flow: pick a reason, optionally add a note, confirm.
@@ -31,7 +31,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
     if (reason == null) return;
 
     final note = _noteController.text.trim();
-    OrderRepository.instance.cancelOrder(
+    OrderController.to.cancelOrder(
       widget.orderId,
       reason: note.isEmpty ? reason : "$reason — $note",
     );

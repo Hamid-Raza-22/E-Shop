@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shop/bindings/admin_bindings.dart';
 import 'package:shop/models/order_model.dart';
-import 'package:shop/repositories/order_repository.dart';
-import 'package:shop/repositories/user_repository.dart';
+import 'package:shop/controllers/order_controller.dart';
+import 'package:shop/controllers/user_controller.dart';
 
 import 'screen_export.dart';
 
@@ -12,7 +14,7 @@ import 'screen_export.dart';
 String _resolveOrderId(Object? arguments, {bool activeOnly = false}) {
   if (arguments is String && arguments.isNotEmpty) return arguments;
 
-  final repository = OrderRepository.instance;
+  final repository = OrderController.to;
   final candidates =
       activeOnly ? repository.activeOrders : repository.orders;
   return candidates.isEmpty ? "" : candidates.first.id;
@@ -57,7 +59,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         builder: (context) {
           // Optional destination (email/phone) the code was sent to.
           final destination = settings.arguments as String? ??
-              UserRepository.instance.user.email;
+              UserController.to.user.email;
           return OtpScreen(
             destination: destination,
             onVerified: () =>
@@ -305,6 +307,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case sizeGuideScreenRoute:
       return MaterialPageRoute(
         builder: (context) => const SizeGuideScreen(),
+      );
+    case adminDashboardScreenRoute:
+      // The dashboard registers its own controllers and gates itself behind an
+      // admin sign-in, so no guard is needed on the route itself.
+      return GetPageRoute(
+        settings: settings,
+        binding: AdminBindings(),
+        page: () => const AdminDashboardScreen(),
       );
     default:
       // Unknown route: show a real "not found" screen instead of silently

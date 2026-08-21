@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:shop/components/empty_state_view.dart';
 import 'package:shop/components/product/product_card.dart';
-import 'package:shop/repositories/bookmark_repository.dart';
+import 'package:shop/controllers/bookmark_controller.dart';
 import 'package:shop/route/route_constants.dart';
 
 import '../../../constants.dart';
@@ -12,12 +13,11 @@ class BookmarkScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repository = BookmarkRepository.instance;
+    final repository = BookmarkController.to;
 
     return Scaffold(
-      body: ListenableBuilder(
-        listenable: repository,
-        builder: (context, _) {
+      body: GetBuilder<BookmarkController>(
+        builder: (controller) {
           final products = repository.products;
 
           if (products.isEmpty) {

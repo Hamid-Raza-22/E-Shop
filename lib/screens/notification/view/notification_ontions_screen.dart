@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../constants.dart';
-import '../../../repositories/notification_repository.dart';
+import '../../../controllers/notification_controller.dart';
 import '../../../route/route_constants.dart';
 
 /// Notification preference toggles.
@@ -11,14 +12,13 @@ class NotificationOptionsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repository = NotificationRepository.instance;
+    final repository = NotificationController.to;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Notification settings")),
       body: SafeArea(
-        child: ListenableBuilder(
-          listenable: repository,
-          builder: (context, _) {
+        child: GetBuilder<NotificationController>(
+          builder: (controller) {
             return ListView(
               children: [
                 if (!repository.isPermissionGranted)

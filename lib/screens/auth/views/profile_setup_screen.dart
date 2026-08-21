@@ -5,7 +5,7 @@ import '../../../components/custom_modal_bottom_sheet.dart';
 import '../../../components/icon_text_form_field.dart';
 import '../../../components/network_image_with_loader.dart';
 import '../../../constants.dart';
-import '../../../repositories/user_repository.dart';
+import '../../../controllers/user_controller.dart';
 import '../../../route/route_constants.dart';
 import '../../user_info/views/components/avatar_picker_sheet.dart';
 
@@ -18,7 +18,7 @@ class ProfileSetupScreen extends StatefulWidget {
 }
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
-  final UserRepository _repository = UserRepository.instance;
+  final UserController _repository = UserController.to;
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _nameController =
@@ -48,7 +48,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   void _finish() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    _repository.update(
+    _repository.updateProfile(
       name: _nameController.text.trim(),
       phone: _phoneController.text.trim(),
       imageSrc: _imageSrc,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/custom_modal_bottom_sheet.dart';
 import '../../../components/empty_state_view.dart';
@@ -8,7 +9,7 @@ import '../../../components/product/product_card.dart';
 import '../../../components/skleton/product/products_skelton.dart';
 import '../../../constants.dart';
 import '../../../models/product_model.dart';
-import '../../../repositories/search_repository.dart';
+import '../../../controllers/product_search_controller.dart';
 import '../../../route/route_constants.dart';
 import 'components/search_filter_sheet.dart';
 import 'components/search_form.dart';
@@ -22,7 +23,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final SearchRepository _repository = SearchRepository.instance;
+  final ProductSearchController _repository = ProductSearchController.to;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
@@ -165,9 +166,8 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildBody() {
     // Idle: no query typed yet -> show recent searches.
     if (_query.trim().isEmpty) {
-      return ListenableBuilder(
-        listenable: _repository,
-        builder: (context, _) {
+      return GetBuilder<ProductSearchController>(
+        builder: (controller) {
           final history = _repository.history;
           if (history.isEmpty) {
             return const EmptyStateView(

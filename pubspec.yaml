@@ -21,6 +21,15 @@ dependencies:
   animations: ^2.0.11
   url_launcher: ^6.3.0
   firebase_core: ^4.13.0
+  get: ^4.7.3
+  cloud_firestore: ^6.8.0
+  firebase_auth: ^6.5.7
+  flutter_dotenv: ^6.0.1
+  fl_chart: ^1.2.0
+  intl: any
+  flutter_localizations:
+    sdk: flutter
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:
@@ -31,7 +40,11 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  # Generates the localizations from lib/l10n/*.arb (see l10n.yaml).
+  generate: true
+
   assets:
+    - .env
     - assets/images/
     - assets/icons/
     - assets/Illustration/

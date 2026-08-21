@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:shop/components/cart_button.dart';
 import 'package:shop/components/custom_modal_bottom_sheet.dart';
 import 'package:shop/components/product/product_card.dart';
 import 'package:shop/constants.dart';
 import 'package:shop/models/product_model.dart';
-import 'package:shop/repositories/bookmark_repository.dart';
+import 'package:shop/controllers/bookmark_controller.dart';
 import 'package:shop/screens/product/views/product_returns_screen.dart';
 
 import 'package:shop/route/screen_export.dart';
@@ -80,16 +81,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               floating: true,
               actions: [
-                // Live bookmark toggle backed by BookmarkRepository.
-                ListenableBuilder(
-                  listenable: BookmarkRepository.instance,
-                  builder: (context, _) {
+                // Live bookmark toggle backed by BookmarkController.
+                GetBuilder<BookmarkController>(
+                  builder: (controller) {
                     final isSaved =
-                        BookmarkRepository.instance.contains(_product);
+                        BookmarkController.to.contains(_product);
                     return IconButton(
                       onPressed: () {
                         final nowSaved =
-                            BookmarkRepository.instance.toggle(_product);
+                            BookmarkController.to.toggle(_product);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(nowSaved

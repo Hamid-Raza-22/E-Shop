@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../repositories/user_repository.dart';
+import '../../../controllers/user_controller.dart';
 import '../../../route/route_constants.dart';
 import 'otp_screen.dart';
 
@@ -14,7 +14,7 @@ class SignUpVerificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return OtpScreen(
       title: "Verify your account",
-      destination: email ?? UserRepository.instance.user.email,
+      destination: email ?? UserController.to.user.email,
       onVerified: () =>
           Navigator.pushNamed(context, profileSetupScreenRoute),
     );

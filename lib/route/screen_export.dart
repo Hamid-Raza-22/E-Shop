@@ -97,3 +97,6 @@ export 'package:shop/screens/wallet/views/empty_wallet_screen.dart';
 export 'package:shop/screens/error/views/no_internet_screen.dart';
 export 'package:shop/screens/error/views/server_error_screen.dart';
 export 'package:shop/screens/error/views/route_not_found_screen.dart';
+
+// Owner dashboard
+export 'package:shop/screens/admin/views/admin_dashboard_screen.dart';

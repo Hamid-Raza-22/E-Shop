@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../components/product/product_card.dart';
 import '../../../constants.dart';
 import '../../../models/category_model.dart';
-import '../../../repositories/search_repository.dart';
+import '../../../controllers/product_search_controller.dart';
 import '../../../route/route_constants.dart';
 
 /// Sub-category listing reached from a Discover category.
@@ -29,7 +29,7 @@ class _SubDiscoverScreenState extends State<SubDiscoverScreen> {
   Widget build(BuildContext context) {
     // Demo data has no category field, so "All" shows the whole catalog and
     // other chips narrow it down deterministically for the demo.
-    final catalog = SearchRepository.instance.catalog;
+    final catalog = ProductSearchController.to.catalog;
     final products = _selectedIndex == 0
         ? catalog
         : catalog

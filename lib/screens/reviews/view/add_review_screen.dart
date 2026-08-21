@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../repositories/review_repository.dart';
-import '../../../repositories/user_repository.dart';
+import '../../../controllers/review_controller.dart';
+import '../../../controllers/user_controller.dart';
 import 'components/add_review_sheet.dart';
 
 /// Full-screen add-review route.
@@ -12,8 +12,8 @@ class AddReviewScreen extends StatelessWidget {
   const AddReviewScreen({super.key});
 
   void _save(BuildContext context, AddReviewResult result) {
-    ReviewRepository.instance.add(
-      userName: UserRepository.instance.user.name,
+    ReviewController.to.add(
+      userName: UserController.to.user.name,
       rating: result.rating,
       review: result.review,
     );

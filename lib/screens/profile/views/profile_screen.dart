@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:shop/components/list_tile/divider_list_tile.dart';
 import 'package:shop/components/network_image_with_loader.dart';
 import 'package:shop/constants.dart';
-import 'package:shop/repositories/cart_repository.dart';
-import 'package:shop/repositories/notification_repository.dart';
-import 'package:shop/repositories/user_repository.dart';
+import 'package:shop/controllers/cart_controller.dart';
+import 'package:shop/controllers/notification_controller.dart';
+import 'package:shop/controllers/user_controller.dart';
 import 'package:shop/route/screen_export.dart';
 
 import 'components/profile_card.dart';
@@ -37,7 +38,7 @@ class ProfileScreen extends StatelessWidget {
 
     if (shouldLogout != true || !context.mounted) return;
 
-    CartRepository.instance.clear();
+    CartController.to.clear();
     Navigator.pushNamedAndRemoveUntil(
       context,
       logInScreenRoute,
@@ -50,12 +51,11 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       body: ListView(
         children: [
-          // Reads from the shared UserRepository so edits made on the
+          // Reads from the shared UserController so edits made on the
           // edit-profile screen are reflected here immediately.
-          ListenableBuilder(
-            listenable: UserRepository.instance,
-            builder: (context, _) {
-              final user = UserRepository.instance.user;
+          GetBuilder<UserController>(
+            builder: (controller) {
+              final user = UserController.to.user;
               return ProfileCard(
                 name: user.name,
                 email: user.email,
@@ -142,13 +142,12 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           // Trailing text reflects the real notification opt-in state.
-          ListenableBuilder(
-            listenable: NotificationRepository.instance,
-            builder: (context, _) {
+          GetBuilder<NotificationController>(
+            builder: (controller) {
               return DividerListTileWithTrilingText(
                 svgSrc: "assets/icons/Notification.svg",
                 title: "Notification",
-                trilingText: NotificationRepository.instance.isPermissionGranted
+                trilingText: NotificationController.to.isPermissionGranted
                     ? "On"
                     : "Off",
                 press: () {
@@ -209,6 +208,18 @@ class ProfileScreen extends StatelessWidget {
             svgSrc: "assets/icons/FAQ.svg",
             press: () {
               Navigator.pushNamed(context, getHelpScreenRoute);
+            },
+            isShowDivider: false,
+          ),
+          const SizedBox(height: defaultPadding),
+
+          // Owner dashboard: the screen itself asks for an administrator
+          // sign-in, so the entry point can stay visible to everyone.
+          ProfileMenuListTile(
+            text: "Shop dashboard",
+            svgSrc: "assets/icons/Category.svg",
+            press: () {
+              Navigator.pushNamed(context, adminDashboardScreenRoute);
             },
             isShowDivider: false,
           ),

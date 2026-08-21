@@ -5,10 +5,10 @@ import 'package:form_field_validator/form_field_validator.dart';
 
 import '../../../components/icon_text_form_field.dart';
 import '../../../constants.dart';
-import '../../../repositories/payment_repository.dart';
+import '../../../controllers/payment_controller.dart';
 
 /// Add-card form. Only the last four digits are persisted (see
-/// [PaymentRepository]); no full card number is stored anywhere.
+/// [PaymentController]); no full card number is stored anywhere.
 class AddNewCardScreen extends StatefulWidget {
   const AddNewCardScreen({super.key});
 
@@ -53,7 +53,7 @@ class _AddNewCardScreenState extends State<AddNewCardScreen> {
   void _save() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    PaymentRepository.instance.addCard(
+    PaymentController.to.addCard(
       holderName: _holderController.text.trim(),
       cardNumber: _numberController.text,
       expiryDate: _expiryController.text.trim(),

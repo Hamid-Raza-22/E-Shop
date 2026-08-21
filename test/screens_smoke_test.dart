@@ -4,7 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shop/components/buy_full_ui_kit.dart';
-import 'package:shop/repositories/cart_repository.dart';
+import 'package:shop/l10n/app_localizations.dart';
+import 'package:shop/controllers/cart_controller.dart';
 import 'package:shop/screens/address/views/addresses_screen.dart';
 import 'package:shop/screens/checkout/views/cart_screen.dart';
 import 'package:shop/screens/kids/views/kids_screen.dart';
@@ -22,9 +23,14 @@ import 'package:shop/screens/search/views/search_screen.dart';
 import 'package:shop/screens/user_info/views/edit_user_info_screen.dart';
 import 'package:shop/screens/user_info/views/user_info_screen.dart';
 
+import 'helpers/controller_harness.dart';
+
 void main() {
+  setUpAll(registerStorefrontControllers);
+  tearDownAll(disposeStorefrontControllers);
+
   setUp(() {
-    CartRepository.instance.clear();
+    CartController.to.clear();
   });
 
   final screens = <String, Widget Function()>{
@@ -61,7 +67,7 @@ void main() {
       tester.view.devicePixelRatio = 3.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(MaterialApp(home: builder()));
+      await tester.pumpWidget(_wrap(builder()));
       await tester.pump();
 
       expect(find.byType(BuyFullKit), findsNothing, reason: "$name still uses BuyFullKit");
@@ -74,12 +80,12 @@ void main() {
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
 
-    final cart = CartRepository.instance;
+    final cart = CartController.to;
     cart.clear();
     cart.seedDemoItems();
     final subtotalBefore = cart.subtotal;
 
-    await tester.pumpWidget(const MaterialApp(home: CartScreen()));
+    await tester.pumpWidget(_wrap(const CartScreen()));
     await tester.pump();
 
     expect(find.text("Review your order"), findsOneWidget);
@@ -100,10 +106,10 @@ void main() {
     addTearDown(tester.view.reset);
 
     // CartScreen seeds demo items on init, so clear after the first frame.
-    await tester.pumpWidget(const MaterialApp(home: CartScreen()));
+    await tester.pumpWidget(_wrap(const CartScreen()));
     await tester.pump();
 
-    CartRepository.instance.clear();
+    CartController.to.clear();
     await tester.pump();
 
     expect(find.text("Your cart is empty"), findsOneWidget);
@@ -115,7 +121,7 @@ void main() {
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaterialApp(home: SizeGuideScreen()));
+    await tester.pumpWidget(_wrap(const SizeGuideScreen()));
     await tester.pump();
 
     // Inches by default: bust 32 for XS.
@@ -128,4 +134,15 @@ void main() {
     expect(find.text("81.3"), findsWidgets);
     expect(tester.takeException(), isNull);
   });
+}
+
+/// Screens read localized strings, so the harness must provide the same
+/// delegates GetMaterialApp installs in production.
+Widget _wrap(Widget child) {
+  return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    locale: const Locale("en"),
+    home: child,
+  );
 }
