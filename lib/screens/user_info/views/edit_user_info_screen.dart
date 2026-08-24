@@ -5,7 +5,10 @@ import '../../../components/custom_modal_bottom_sheet.dart';
 import '../../../components/icon_text_form_field.dart';
 import '../../../components/network_image_with_loader.dart';
 import '../../../constants.dart';
+import '../../../controllers/auth_controller.dart';
 import '../../../controllers/user_controller.dart';
+import '../../../services/customer_service.dart';
+import '../../../utils/service_locator.dart';
 import 'components/avatar_picker_sheet.dart';
 
 /// Editable profile form matching the "Edit profile" design.
@@ -54,18 +57,46 @@ class _EditUserInfoScreenState extends State<EditUserInfoScreen> {
     setState(() => _imageSrc = result);
   }
 
-  void _save() {
+  Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final phone = _phoneController.text.trim();
+
     _repository.updateProfile(
-      name: _nameController.text.trim(),
-      email: _emailController.text.trim(),
-      phone: _phoneController.text.trim(),
+      name: name,
+      email: email,
+      phone: phone,
       imageSrc: _imageSrc,
     );
 
+    // A signed-in customer's profile also lives in Firestore, where the
+    // dashboard reads it.
+    final customerId = AuthController.to.user?.uid;
+    final customers = serviceOrNull<CustomerService>();
+    var saved = true;
+    if (customerId != null && customers != null) {
+      try {
+        await customers.saveProfile(
+          id: customerId,
+          name: name,
+          email: email,
+          phone: phone,
+          photoUrl: _imageSrc,
+        );
+      } catch (_) {
+        saved = false;
+      }
+    }
+
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Profile updated")),
+      SnackBar(
+        content: Text(saved
+            ? "Profile updated"
+            : "Saved on this device, but we could not sync it."),
+      ),
     );
     Navigator.pop(context);
   }

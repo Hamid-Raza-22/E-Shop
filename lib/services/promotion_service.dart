@@ -8,10 +8,13 @@ import 'firestore_paths.dart';
 /// Codes are stored upper-cased by [PromotionModel] so a single equality query
 /// can serve case-insensitive lookups.
 class PromotionService {
-  PromotionService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  PromotionService({FirebaseFirestore? firestore}) : _injected = firestore;
 
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore? _injected;
+
+  /// Resolved lazily so a subclass can stub the queries in tests without a
+  /// Firebase app being initialised.
+  FirebaseFirestore get _firestore => _injected ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection(FirestorePaths.promotions);

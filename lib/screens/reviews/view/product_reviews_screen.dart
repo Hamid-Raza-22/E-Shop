@@ -9,13 +9,18 @@ import '../../../constants.dart';
 import '../../../models/review_model.dart';
 import '../../../controllers/review_controller.dart';
 import '../../../controllers/user_controller.dart';
+import 'add_review_screen.dart';
 import 'components/add_review_sheet.dart';
 import 'components/user_review_card.dart';
 
 enum ReviewSortOption { mostRecent, highestRating, lowestRating }
 
 class ProductReviewsScreen extends StatefulWidget {
-  const ProductReviewsScreen({super.key});
+  const ProductReviewsScreen({super.key, this.productId});
+
+  /// Product whose reviews are listed. Null keeps whatever product the
+  /// controller is already bound to.
+  final String? productId;
 
   @override
   State<ProductReviewsScreen> createState() => _ProductReviewsScreenState();
@@ -25,6 +30,12 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
   final ReviewController _repository = ReviewController.to;
 
   ReviewSortOption _sortOption = ReviewSortOption.mostRecent;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.productId != null) _repository.bindProduct(widget.productId);
+  }
 
   static const Map<ReviewSortOption, String> _sortLabels = {
     ReviewSortOption.mostRecent: "Most recent",
@@ -54,13 +65,14 @@ class _ProductReviewsScreenState extends State<ProductReviewsScreen> {
 
     if (result is! AddReviewResult || !mounted) return;
 
-    _repository.add(
+    final saved = await _repository.add(
       userName: UserController.to.user.name,
       rating: result.rating,
       review: result.review,
     );
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Thanks! Your review has been added")),
+      SnackBar(content: Text(reviewSubmittedMessage(saved, _repository))),
     );
   }
 

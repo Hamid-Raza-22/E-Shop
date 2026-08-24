@@ -23,14 +23,7 @@ class _CartScreenState extends State<CartScreen> {
   final CartController _cart = CartController.to;
   final TextEditingController _couponController = TextEditingController();
 
-  String? _appliedCoupon;
-
-  @override
-  void initState() {
-    super.initState();
-    // Demo convenience: the cart is not empty the first time it is opened.
-    _cart.seedDemoItems();
-  }
+  bool _isApplyingCoupon = false;
 
   @override
   void dispose() {
@@ -38,14 +31,29 @@ class _CartScreenState extends State<CartScreen> {
     super.dispose();
   }
 
-  void _applyCoupon() {
+  Future<void> _applyCoupon() async {
     final code = _couponController.text.trim();
-    if (code.isEmpty) return;
+    if (code.isEmpty || _isApplyingCoupon) return;
+
     FocusScope.of(context).unfocus();
-    setState(() => _appliedCoupon = code.toUpperCase());
+    setState(() => _isApplyingCoupon = true);
+    final failure = await _cart.applyPromotion(code);
+    if (!mounted) return;
+    setState(() => _isApplyingCoupon = false);
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Coupon $_appliedCoupon saved for checkout")),
+      SnackBar(
+        content: Text(
+          failure ?? "Coupon ${code.toUpperCase()} applied",
+        ),
+      ),
     );
+    if (failure == null) _couponController.clear();
+  }
+
+  void _removeCoupon() {
+    _cart.removePromotion();
+    _couponController.clear();
   }
 
   Future<void> _confirmRemove(CartItem item) async {
@@ -137,7 +145,8 @@ class _CartScreenState extends State<CartScreen> {
                             onDecrement: () => _cart.decrement(item),
                             onRemove: () => _confirmRemove(item),
                             press: () => Navigator.pushNamed(
-                                context, productDetailsScreenRoute),
+                                context, productDetailsScreenRoute,
+                                arguments: item.product),
                           ),
                           if (index != items.length - 1)
                             const Divider(height: 1),
@@ -169,25 +178,36 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                         ),
                         suffixIcon: TextButton(
-                          onPressed: _applyCoupon,
-                          child: const Text("Apply"),
+                          onPressed: _isApplyingCoupon ? null : _applyCoupon,
+                          child: Text(_isApplyingCoupon ? "…" : "Apply"),
                         ),
                       ),
                     ),
-                    if (_appliedCoupon != null)
+                    if (_cart.promotion != null)
                       Padding(
                         padding: const EdgeInsets.only(top: defaultPadding / 2),
-                        child: Text(
-                          "Coupon $_appliedCoupon will be validated at checkout.",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall!
-                              .copyWith(color: successColor),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "${_cart.promotion!.code} applied — ${_cart.promotion!.percentOff}% off",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall!
+                                    .copyWith(color: successColor),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: _removeCoupon,
+                              child: const Text("Remove"),
+                            ),
+                          ],
                         ),
                       ),
                     const SizedBox(height: defaultPadding * 1.5),
                     OrderSummaryCard(
                       subtotal: _cart.subtotal,
+                      discount: _cart.discount,
                       shippingFee: _cart.shippingFee,
                       vat: _cart.vat,
                       total: _cart.total,

@@ -79,8 +79,9 @@ class AdminSettingsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Copies the bundled demo catalog into Firestore. Only runs "
-                "while the catalog is still empty.",
+                "Copies the bundled demo catalog into Firestore, plus sample "
+                "customers, orders, reviews and coupons. Only runs while the "
+                "catalog is still empty.",
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: defaultPadding / 2),
@@ -94,13 +95,14 @@ class AdminSettingsScreen extends StatelessWidget {
                       content: Text(
                         seeded
                             ? translations.adminProductSaved
-                            : "Catalog is not empty — nothing was imported.",
+                            : AdminProductsController.to.error ??
+                                "Catalog is not empty — nothing was imported.",
                       ),
                     ),
                   );
                 },
                 icon: const Icon(Icons.auto_awesome),
-                label: const Text("Import demo catalog"),
+                label: const Text("Import demo data"),
               ),
             ],
           ),

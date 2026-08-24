@@ -1,19 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/empty_state_view.dart';
 import '../../../components/product/product_card.dart';
 import '../../../constants.dart';
+import '../../../controllers/product_search_controller.dart';
 import '../../../models/product_model.dart';
 import '../../../route/route_constants.dart';
 
-/// Kids category grid, driven by [kidsProducts].
+/// Kids category grid, driven by the published catalog.
 class KidsScreen extends StatelessWidget {
   const KidsScreen({super.key});
 
+  static const String category = "Kids";
+
   @override
   Widget build(BuildContext context) {
-    final products = kidsProducts;
+    return Obx(() => _build(context, _products()));
+  }
 
+  List<ProductModel> _products() => ProductSearchController.to.catalog
+      .where((product) =>
+          (product.category ?? "").toLowerCase() == category.toLowerCase())
+      .toList();
+
+  Widget _build(BuildContext context, List<ProductModel> products) {
     return Scaffold(
       appBar: AppBar(title: const Text("Kids")),
       body: SafeArea(
@@ -57,7 +68,8 @@ class KidsScreen extends StatelessWidget {
                             priceAfetDiscount: product.priceAfetDiscount,
                             dicountpercent: product.dicountpercent,
                             press: () => Navigator.pushNamed(
-                                context, productDetailsScreenRoute),
+                                context, productDetailsScreenRoute,
+                                arguments: product),
                           );
                         },
                         childCount: products.length,

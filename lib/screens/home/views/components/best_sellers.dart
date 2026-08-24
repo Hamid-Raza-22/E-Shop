@@ -4,14 +4,23 @@ import 'package:shop/models/product_model.dart';
 
 import '../../../../constants.dart';
 import '../../../../route/route_constants.dart';
+import '../../../../services/product_service.dart';
+import '../../../../utils/service_locator.dart';
 
 class BestSellers extends StatelessWidget {
   const BestSellers({
     super.key,
   });
 
+  List<ProductModel> _visibleProducts(List<ProductModel>? products) =>
+      (products ?? const [])
+          .where((product) => product.isPublished && product.isInStock)
+          .toList();
+
   @override
   Widget build(BuildContext context) {
+    final service = serviceOrNull<ProductService>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -23,37 +32,44 @@ class BestSellers extends StatelessWidget {
             style: Theme.of(context).textTheme.titleSmall,
           ),
         ),
-        // While loading use 👇
-        // const ProductsSkelton(),
-        SizedBox(
-          height: 220,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            // Find demoBestSellersProducts on models/ProductModel.dart
-            itemCount: demoBestSellersProducts.length,
-            itemBuilder: (context, index) => Padding(
-              padding: EdgeInsets.only(
-                left: defaultPadding,
-                right: index == demoBestSellersProducts.length - 1
-                    ? defaultPadding
-                    : 0,
-              ),
-              child: ProductCard(
-                image: demoBestSellersProducts[index].image,
-                brandName: demoBestSellersProducts[index].brandName,
-                title: demoBestSellersProducts[index].title,
-                price: demoBestSellersProducts[index].price,
-                priceAfetDiscount:
-                    demoBestSellersProducts[index].priceAfetDiscount,
-                dicountpercent: demoBestSellersProducts[index].dicountpercent,
-                press: () {
-                  Navigator.pushNamed(context, productDetailsScreenRoute,
-                      arguments: index.isEven);
+        StreamBuilder<List<ProductModel>>(
+          stream: service?.watchPublished() ?? const Stream.empty(),
+          builder: (context, snapshot) {
+            final products = _visibleProducts(snapshot.data);
+            if (products.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            return SizedBox(
+              height: 220,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final product = products[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      left: defaultPadding,
+                      right: index == products.length - 1 ? defaultPadding : 0,
+                    ),
+                    child: ProductCard(
+                      image: product.image,
+                      brandName: product.brandName,
+                      title: product.title,
+                      price: product.price,
+                      priceAfetDiscount: product.priceAfetDiscount,
+                      dicountpercent: product.dicountpercent,
+                      press: () {
+                        Navigator.pushNamed(context, productDetailsScreenRoute,
+                            arguments: product);
+                      },
+                    ),
+                  );
                 },
               ),
-            ),
-          ),
-        )
+            );
+          },
+        ),
       ],
     );
   }

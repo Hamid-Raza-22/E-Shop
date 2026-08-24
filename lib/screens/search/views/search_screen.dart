@@ -243,8 +243,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   price: product.price,
                   priceAfetDiscount: product.priceAfetDiscount,
                   dicountpercent: product.dicountpercent,
-                  press: () =>
-                      Navigator.pushNamed(context, productDetailsScreenRoute),
+                  press: () => Navigator.pushNamed(
+                      context, productDetailsScreenRoute,
+                      arguments: product),
                 );
               },
               childCount: _results.length,

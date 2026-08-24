@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/empty_state_view.dart';
 import '../../../components/network_image_with_loader.dart';
@@ -20,11 +21,18 @@ class BrandScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final products = ProductSearchController.to.catalog
-        .where((product) =>
-            product.brandName.toLowerCase() == brandName.toLowerCase())
-        .toList();
+    return Obx(
+      () => _build(
+        context,
+        ProductSearchController.to.catalog
+            .where((product) =>
+                product.brandName.toLowerCase() == brandName.toLowerCase())
+            .toList(),
+      ),
+    );
+  }
 
+  Widget _build(BuildContext context, List<ProductModel> products) {
     return Scaffold(
       appBar: AppBar(title: Text(brandName)),
       body: SafeArea(
@@ -75,7 +83,8 @@ class BrandScreen extends StatelessWidget {
                             priceAfetDiscount: product.priceAfetDiscount,
                             dicountpercent: product.dicountpercent,
                             press: () => Navigator.pushNamed(
-                                context, productDetailsScreenRoute),
+                                context, productDetailsScreenRoute,
+                                arguments: product),
                           );
                         },
                         childCount: products.length,

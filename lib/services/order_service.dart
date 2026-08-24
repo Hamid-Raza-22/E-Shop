@@ -63,14 +63,22 @@ class OrderService {
     return doc.exists ? OrderModel.fromDoc(doc) : null;
   }
 
-  /// Returns the new document id.
+  /// Returns the document id.
+  ///
+  /// [OrderModel.id] is already globally unique and is what the customer and the
+  /// dashboard display, so it is used as the document id instead of an
+  /// auto-generated one — both sides then talk about the same order number.
   Future<String> create(OrderModel order) async {
-    final now = DateTime.now();
-    final reference = await _collection.add({
-      ...order.toMap(),
-      "updatedAt": Timestamp.fromDate(now),
-    });
-    return reference.id;
+    final now = Timestamp.fromDate(DateTime.now());
+    final payload = {...order.toMap(), "updatedAt": now};
+
+    if (order.id.isEmpty) {
+      final reference = await _collection.add(payload);
+      return reference.id;
+    }
+
+    await _collection.doc(order.id).set(payload);
+    return order.id;
   }
 
   /// Advances an order. [cancelReason] is only written when supplied so a

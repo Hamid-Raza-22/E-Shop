@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../controllers/address_controller.dart';
+import '../controllers/auth_controller.dart';
 import '../controllers/bookmark_controller.dart';
 import '../controllers/cart_controller.dart';
 import '../controllers/notification_controller.dart';
@@ -13,10 +14,12 @@ import '../controllers/wallet_controller.dart';
 import '../services/admin_auth_service.dart';
 import '../services/analytics_service.dart';
 import '../services/customer_service.dart';
+import '../services/demo_seed_service.dart';
 import '../services/order_service.dart';
 import '../services/product_service.dart';
 import '../services/promotion_service.dart';
 import '../services/review_service.dart';
+import '../services/storage_service.dart';
 
 /// Dependency graph for the whole app.
 ///
@@ -34,6 +37,8 @@ class InitialBindings extends Bindings {
     Get.lazyPut<ReviewService>(() => ReviewService(), fenix: true);
     Get.lazyPut<PromotionService>(() => PromotionService(), fenix: true);
     Get.lazyPut<AdminAuthService>(() => AdminAuthService(), fenix: true);
+    Get.lazyPut<DemoSeedService>(() => DemoSeedService(), fenix: true);
+    Get.lazyPut<StorageService>(() => StorageService(), fenix: true);
     Get.lazyPut<AnalyticsService>(
       () => AnalyticsService(
         orderService: Get.find<OrderService>(),
@@ -54,5 +59,9 @@ class InitialBindings extends Bindings {
     Get.put(NotificationController(), permanent: true);
     Get.put(ReviewController(), permanent: true);
     Get.put(ProductSearchController(), permanent: true);
+
+    // Registered last: it immediately reacts to the signed-in user and needs
+    // the controllers above to already exist.
+    Get.put(AuthController(), permanent: true);
   }
 }

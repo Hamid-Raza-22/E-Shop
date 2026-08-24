@@ -105,11 +105,8 @@ void main() {
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
 
-    // CartScreen seeds demo items on init, so clear after the first frame.
-    await tester.pumpWidget(_wrap(const CartScreen()));
-    await tester.pump();
-
     CartController.to.clear();
+    await tester.pumpWidget(_wrap(const CartScreen()));
     await tester.pump();
 
     expect(find.text("Your cart is empty"), findsOneWidget);

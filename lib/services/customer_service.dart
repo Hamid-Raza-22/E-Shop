@@ -35,6 +35,43 @@ class CustomerService {
     return doc.exists ? CustomerModel.fromDoc(doc) : null;
   }
 
+  /// Creates or updates the customer's own profile.
+  ///
+  /// The shop-owned counters are never touched here, which is exactly what the
+  /// security rules allow a signed-in customer to write.
+  Future<void> saveProfile({
+    required String id,
+    required String name,
+    required String email,
+    String? phone,
+    String? photoUrl,
+  }) async {
+    final document = _collection.doc(id);
+    final existing = await document.get();
+    final now = Timestamp.fromDate(DateTime.now());
+
+    await document.set(
+      {
+        "name": name,
+        "email": email,
+        if (phone != null) "phone": phone,
+        if (photoUrl != null) "photoUrl": photoUrl,
+        if (!existing.exists) "createdAt": now,
+        "updatedAt": now,
+      },
+      SetOptions(merge: true),
+    );
+  }
+
+  /// Live profile of a single customer, so the storefront reflects changes made
+  /// in the dashboard (a block, a corrected name, …) without a restart.
+  Stream<CustomerModel?> watchById(String id) {
+    return _collection
+        .doc(id)
+        .snapshots()
+        .map((doc) => doc.exists ? CustomerModel.fromDoc(doc) : null);
+  }
+
   /// Creates or refreshes the customer document as a side effect of checkout.
   ///
   /// The counters use [FieldValue.increment] inside a merging `set` so the write

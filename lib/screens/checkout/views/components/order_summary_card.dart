@@ -12,9 +12,13 @@ class OrderSummaryCard extends StatelessWidget {
     required this.vat,
     required this.total,
     required this.isShippingFree,
+    this.discount = 0,
   });
 
   final double subtotal, shippingFee, vat, total;
+
+  /// Coupon discount. The row is hidden while it is zero.
+  final double discount;
   final bool isShippingFree;
 
   @override
@@ -36,6 +40,14 @@ class OrderSummaryCard extends StatelessWidget {
           const SizedBox(height: defaultPadding),
           _SummaryRow(label: "Subtotal", value: formatPrice(subtotal)),
           const SizedBox(height: defaultPadding / 2),
+          if (discount > 0) ...[
+            _SummaryRow(
+              label: "Discount",
+              value: "-${formatPrice(discount)}",
+              valueColor: successColor,
+            ),
+            const SizedBox(height: defaultPadding / 2),
+          ],
           _SummaryRow(
             label: "Shipping Fee",
             value: isShippingFree ? "Free" : formatPrice(shippingFee),

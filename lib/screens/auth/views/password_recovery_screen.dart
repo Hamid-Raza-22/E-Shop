@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../../components/icon_text_form_field.dart';
 import '../../../constants.dart';
+import '../../../controllers/auth_controller.dart';
 import '../../../route/route_constants.dart';
 import 'set_new_password_screen.dart';
 
-/// Step 1 of password recovery: collect the account email.
+/// Step 1 of password recovery: collect the account email and ask Firebase to
+/// send the reset link.
 ///
-/// No email is actually sent — there is no auth backend in this project. The
-/// flow navigates to [SetNewPasswordScreen] so the UX is complete and the
-/// network call can be dropped into [_submit] later.
+/// Without Firebase the flow still continues to [SetNewPasswordScreen] so the
+/// UX stays complete.
 class PasswordRecoveryScreen extends StatefulWidget {
   const PasswordRecoveryScreen({super.key});
 
@@ -33,17 +34,27 @@ class _PasswordRecoveryScreenState extends State<PasswordRecoveryScreen> {
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
+    final auth = AuthController.to;
+    final email = _emailController.text.trim();
+
     setState(() => _isSubmitting = true);
-    // Simulates the request latency a real "send reset link" call would have.
-    await Future.delayed(const Duration(milliseconds: 600));
+    final sent = auth.isAvailable
+        ? await auth.sendPasswordReset(email)
+        : true;
     if (!mounted) return;
     setState(() => _isSubmitting = false);
+
+    if (!sent) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.error ?? "Could not send the reset link.")),
+      );
+      return;
+    }
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            SetNewPasswordScreen(email: _emailController.text.trim()),
+        builder: (context) => SetNewPasswordScreen(email: email),
       ),
     );
   }

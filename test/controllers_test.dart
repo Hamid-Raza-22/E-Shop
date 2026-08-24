@@ -63,7 +63,7 @@ void main() {
   });
 
   group('OrderController', () {
-    test('creating an order from the cart adds an active order', () {
+    test('creating an order from the cart adds an active order', () async {
       late final CartController cart = CartController.to;
       late final OrderController orders = OrderController.to;
 
@@ -71,24 +71,38 @@ void main() {
       cart.seedDemoItems();
       final activeBefore = orders.activeOrders.length;
 
-      final order = orders.createFromCart(cart.items, cart.total);
+      final order = (await orders.createFromCart(cart.items, cart.total))!;
 
       expect(orders.activeOrders.length, activeBefore + 1);
       expect(order.isActive, isTrue);
+      expect(order.status, OrderStatus.pending);
       expect(order.items.length, cart.items.length);
       expect(orders.findById(order.id), isNotNull);
       cart.clear();
     });
 
-    test('canceling moves an order out of the active list', () {
+    test('order ids are unique across placements', () async {
       late final CartController cart = CartController.to;
       late final OrderController orders = OrderController.to;
 
       cart.clear();
       cart.seedDemoItems();
-      final order = orders.createFromCart(cart.items, cart.total);
+      final first = (await orders.createFromCart(cart.items, cart.total))!;
+      final second = (await orders.createFromCart(cart.items, cart.total))!;
 
-      orders.cancelOrder(order.id, reason: "Ordered by mistake");
+      expect(first.id, isNot(second.id));
+      cart.clear();
+    });
+
+    test('canceling moves an order out of the active list', () async {
+      late final CartController cart = CartController.to;
+      late final OrderController orders = OrderController.to;
+
+      cart.clear();
+      cart.seedDemoItems();
+      final order = (await orders.createFromCart(cart.items, cart.total))!;
+
+      await orders.cancelOrder(order.id, reason: "Ordered by mistake");
       final updated = orders.findById(order.id)!;
 
       expect(updated.status, OrderStatus.canceled);

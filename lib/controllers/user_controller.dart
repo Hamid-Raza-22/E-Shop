@@ -20,14 +20,23 @@ class UserController extends GetxController {
     "https://i.imgur.com/dbbT6PA.png",
   ];
 
-  UserModel _user = const UserModel(
+  /// Shown before anybody signs in, and restored on sign-out.
+  static const UserModel guest = UserModel(
     name: "Sepide",
     email: "theflutterway@gmail.com",
     phone: "+1 202 555 0134",
     imageSrc: "https://i.imgur.com/IXnwbLk.png",
   );
 
+  UserModel _user = guest;
+
   UserModel get user => _user;
+
+  /// Drops the signed-in customer's details.
+  void signOut() {
+    _user = guest;
+    update();
+  }
 
   /// Named `updateProfile` (not `update`) because `GetxController.update()` is
   /// the rebuild trigger and cannot be overloaded.

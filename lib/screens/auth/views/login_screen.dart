@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shop/constants.dart';
+import 'package:shop/controllers/auth_controller.dart';
 import 'package:shop/route/route_constants.dart';
 
 import 'components/login_form.dart';
@@ -13,6 +14,43 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+
+  bool _isBusy = false;
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _logIn() async {
+    if (!(_formKey.currentState?.validate() ?? false) || _isBusy) return;
+
+    final auth = AuthController.to;
+    setState(() => _isBusy = true);
+    final signedIn = await auth.signIn(
+      email: _email.text,
+      password: _password.text,
+    );
+    if (!mounted) return;
+    setState(() => _isBusy = false);
+
+    if (!signedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.error ?? "Could not sign you in.")),
+      );
+      return;
+    }
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      entryPointScreenRoute,
+      ModalRoute.withName(logInScreenRoute),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +78,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     "Log in with your data that you intered during your registration.",
                   ),
                   const SizedBox(height: defaultPadding),
-                  LogInForm(formKey: _formKey),
+                  LogInForm(
+                    formKey: _formKey,
+                    emailController: _email,
+                    passwordController: _password,
+                  ),
                   Align(
                     child: TextButton(
                       child: const Text("Forgot password"),
@@ -56,14 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         : defaultPadding,
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            entryPointScreenRoute,
-                            ModalRoute.withName(logInScreenRoute));
-                      }
-                    },
+                    onPressed: _isBusy ? null : _logIn,
                     child: const Text("Log in"),
                   ),
                   Row(

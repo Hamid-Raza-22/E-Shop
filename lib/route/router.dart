@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shop/bindings/admin_bindings.dart';
 import 'package:shop/models/order_model.dart';
+import 'package:shop/models/product_model.dart';
 import 'package:shop/controllers/order_controller.dart';
 import 'package:shop/controllers/user_controller.dart';
 
@@ -112,17 +113,26 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case productDetailsScreenRoute:
       return MaterialPageRoute(
         builder: (context) {
-          bool isProductAvailable = settings.arguments as bool? ?? true;
-          return ProductDetailsScreen(isProductAvailable: isProductAvailable);
+          // A real catalog product decides its own availability; the legacy bool
+          // argument still drives the demo product.
+          final arguments = settings.arguments;
+          if (arguments is ProductModel) {
+            return ProductDetailsScreen(product: arguments);
+          }
+          return ProductDetailsScreen(
+            isProductAvailable: arguments as bool? ?? true,
+          );
         },
       );
     case productReviewsScreenRoute:
       return MaterialPageRoute(
-        builder: (context) => const ProductReviewsScreen(),
+        builder: (context) =>
+            ProductReviewsScreen(productId: settings.arguments as String?),
       );
     case addReviewsScreenRoute:
       return MaterialPageRoute(
-        builder: (context) => const AddReviewScreen(),
+        builder: (context) =>
+            AddReviewScreen(productId: settings.arguments as String?),
       );
     case homeScreenRoute:
       return MaterialPageRoute(

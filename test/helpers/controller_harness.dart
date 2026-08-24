@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shop/config/app_env.dart';
 import 'package:shop/controllers/address_controller.dart';
+import 'package:shop/controllers/auth_controller.dart';
 import 'package:shop/controllers/bookmark_controller.dart';
 import 'package:shop/controllers/cart_controller.dart';
 import 'package:shop/controllers/notification_controller.dart';
@@ -39,6 +40,8 @@ Future<void> registerStorefrontControllers() async {
   Get.put(NotificationController());
   Get.put(ReviewController());
   Get.put(ProductSearchController());
+  // Without Firebase this controller stays inert, but screens still resolve it.
+  Get.put(AuthController());
 }
 
 void disposeStorefrontControllers() => Get.reset();

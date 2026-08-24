@@ -19,22 +19,54 @@ class NetworkImageWithLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(radius)),
-      child: CachedNetworkImage(
-        fit: fit,
-        imageUrl: src,
-        imageBuilder: (context, imageProvider) => Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: imageProvider,
-              fit: fit,
+    if (src.trim().isEmpty) {
+      return const _FallbackImage();
+    }
+
+    final isNetworkUrl = src.startsWith('http://') || src.startsWith('https://');
+    if (isNetworkUrl) {
+      return ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(radius)),
+        child: CachedNetworkImage(
+          fit: fit,
+          imageUrl: src,
+          imageBuilder: (context, imageProvider) => Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: imageProvider,
+                fit: fit,
+              ),
             ),
           ),
+          placeholder: (context, url) => const Skeleton(),
+          errorWidget: (context, url, error) => const _FallbackImage(),
         ),
-        placeholder: (context, url) => const Skeleton(),
-        errorWidget: (context, url, error) => const Icon(Icons.error),
-      ),
+      );
+    }
+
+    if (src.startsWith('assets/')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(radius)),
+        child: Image.asset(
+          src,
+          fit: fit,
+          errorBuilder: (context, error, stackTrace) => const _FallbackImage(),
+        ),
+      );
+    }
+
+    return const _FallbackImage();
+  }
+}
+
+class _FallbackImage extends StatelessWidget {
+  const _FallbackImage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.grey.shade200,
+      child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
     );
   }
 }

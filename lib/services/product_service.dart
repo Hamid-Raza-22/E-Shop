@@ -83,18 +83,57 @@ class ProductService {
   Future<void> delete(String id) => _collection.doc(id).delete();
 
   /// One-shot import used by the dashboard's "seed demo catalog" action.
+  ///
+  /// The document id is stable so re-running the seed does not create duplicates
+  /// while still updating the current catalog data.
   Future<void> importAll(List<ProductModel> products) async {
     final batch = _firestore.batch();
     final now = Timestamp.fromDate(DateTime.now());
+    final seen = <String>{};
+    var writeCount = 0;
 
     for (final product in products) {
-      batch.set(_collection.doc(), {
-        ...product.toMap(),
-        "createdAt": now,
-        "updatedAt": now,
-      });
+      final docId = _stableDocumentId(product);
+      if (!seen.add(docId)) continue;
+      writeCount++;
+
+      batch.set(
+        _collection.doc(docId),
+        {
+          ...product.copyWith(id: docId).toMap(),
+          "createdAt": product.createdAt == null
+              ? now
+              : Timestamp.fromDate(product.createdAt!),
+          "updatedAt": now,
+        },
+        SetOptions(merge: true),
+      );
     }
 
-    await batch.commit();
+    if (writeCount > 0) {
+      await batch.commit();
+    }
+  }
+
+  /// Derives a repeatable document id from the product's identity so re-running
+  /// the seed updates the same documents instead of duplicating them.
+  ///
+  /// A hash is used rather than the sanitised text because Firestore rejects ids
+  /// matching `__*__`, forbids `/` and caps their length.
+  String _stableDocumentId(ProductModel product) {
+    final id = product.id;
+    if (id != null && id.isNotEmpty) return id;
+
+    // FNV-1a, 64-bit: short, stable across runs and dependency-free.
+    var hash = BigInt.parse("14695981039346656037");
+    final prime = BigInt.parse("1099511628211");
+    final mask = (BigInt.one << 64) - BigInt.one;
+
+    for (final byte
+        in "${product.brandName}|${product.title}|${product.image}".codeUnits) {
+      hash = ((hash ^ BigInt.from(byte)) * prime) & mask;
+    }
+
+    return "seed_${hash.toRadixString(36)}";
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:shop/controllers/auth_controller.dart';
 import 'package:shop/screens/auth/views/components/sign_up_form.dart';
 import 'package:shop/route/route_constants.dart';
 
@@ -14,12 +15,22 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
 
   /// Terms must be accepted before the account can be created.
   bool _hasAcceptedTerms = false;
+  bool _isBusy = false;
 
-  void _continue() {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _continue() async {
+    if (!(_formKey.currentState?.validate() ?? false) || _isBusy) return;
 
     if (!_hasAcceptedTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -30,7 +41,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    Navigator.pushNamed(context, signUpVerificationScreenRoute);
+    final auth = AuthController.to;
+    setState(() => _isBusy = true);
+    final created = await auth.signUp(
+      email: _email.text,
+      password: _password.text,
+    );
+    if (!mounted) return;
+    setState(() => _isBusy = false);
+
+    if (!created) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.error ?? "Could not create your account.")),
+      );
+      return;
+    }
+
+    Navigator.pushNamed(
+      context,
+      signUpVerificationScreenRoute,
+      arguments: _email.text.trim(),
+    );
   }
 
   @override
@@ -59,7 +90,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     "Please enter your valid data in order to create an account.",
                   ),
                   const SizedBox(height: defaultPadding),
-                  SignUpForm(formKey: _formKey),
+                  SignUpForm(
+                    formKey: _formKey,
+                    emailController: _email,
+                    passwordController: _password,
+                  ),
                   const SizedBox(height: defaultPadding),
                   Row(
                     children: [
@@ -96,7 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   const SizedBox(height: defaultPadding * 2),
                   ElevatedButton(
-                    onPressed: _continue,
+                    onPressed: _isBusy ? null : _continue,
                     child: const Text("Continue"),
                   ),
                   Row(

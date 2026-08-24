@@ -35,14 +35,21 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
-    // Orders: a customer may read and create their own; only the shop may
-    // change status afterwards, so history cannot be rewritten by the buyer.
+    // Orders: a customer may read and create their own, and cancel one that has
+    // not been processed yet. Everything else is shop-only, so order history
+    // cannot be rewritten by the buyer.
     match /orders/{orderId} {
       allow read: if isAdmin() || isOwner(resource.data.customerId);
       allow create: if isSignedIn()
         && request.resource.data.customerId == request.auth.uid
         && request.resource.data.status == 'pending';
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (isOwner(resource.data.customerId)
+            && resource.data.status == 'pending'
+            && request.resource.data.status == 'canceled'
+            && !request.resource.data.diff(resource.data).affectedKeys()
+                 .hasAny(['total', 'items', 'customerId', 'placedOn']));
+      allow delete: if isAdmin();
     }
 
     // Customer profiles: self-service for the shopper, full access for the shop.

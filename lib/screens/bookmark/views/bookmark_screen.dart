@@ -78,7 +78,8 @@ class BookmarkScreen extends StatelessWidget {
                             dicountpercent: product.dicountpercent,
                             press: () {
                               Navigator.pushNamed(
-                                  context, productDetailsScreenRoute);
+                                  context, productDetailsScreenRoute,
+                                  arguments: product);
                             },
                           ),
                           // Quick "unsave" action on each card.

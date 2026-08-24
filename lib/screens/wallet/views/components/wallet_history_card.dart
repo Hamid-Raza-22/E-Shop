@@ -77,7 +77,8 @@ class WalletHistoryCard extends StatelessWidget {
                 price: products[index].price,
                 priceAfetDiscount: products[index].priceAfetDiscount,
                 press: () => Navigator.pushNamed(
-                    context, productDetailsScreenRoute),
+                    context, productDetailsScreenRoute,
+                    arguments: products[index]),
                 style: ElevatedButton.styleFrom(
                   maximumSize: const Size(double.infinity, 90),
                   padding: EdgeInsets.zero,

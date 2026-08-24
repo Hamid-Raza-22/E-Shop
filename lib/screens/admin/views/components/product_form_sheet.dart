@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../constants.dart';
 import '../../../../controllers/admin/admin_products_controller.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../models/product_model.dart';
+import '../../../../services/storage_service.dart';
 import '../../../../utils/responsive.dart';
+import '../../../../utils/service_locator.dart';
 
 /// Create/edit form for a catalog product.
 ///
@@ -41,7 +44,49 @@ class _ProductFormSheetState extends State<ProductFormSheet> {
 
   late bool _isPublished = widget.product?.isPublished ?? true;
 
+  bool _isUploading = false;
+
   bool get _isEditing => widget.product != null;
+
+  /// Picks an image and puts its Storage download URL into the image field, so
+  /// uploading and pasting a URL end up in exactly the same place.
+  Future<void> _pickImage() async {
+    final storage = serviceOrNull<StorageService>();
+    if (storage == null) {
+      _showMessage("Image uploads need Firebase Storage to be configured.");
+      return;
+    }
+
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      // Product art does not need to be bigger than this, and it keeps the
+      // upload small enough to feel instant.
+      maxWidth: 1600,
+      imageQuality: 85,
+    );
+    if (picked == null) return;
+
+    setState(() => _isUploading = true);
+    try {
+      final url = await storage.uploadProductImage(
+        bytes: await picked.readAsBytes(),
+        fileName: picked.name,
+        contentType: picked.mimeType,
+      );
+      if (!mounted) return;
+      setState(() => _image.text = url);
+    } catch (exception) {
+      _showMessage("Upload failed: $exception");
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   void dispose() {
@@ -164,6 +209,9 @@ class _ProductFormSheetState extends State<ProductFormSheet> {
                 validator: (value) {
                   final url = value?.trim() ?? "";
                   if (url.isEmpty) return translations.validationRequired;
+                  // Bundled asset paths stay valid so the demo catalog keeps
+                  // working next to uploaded images.
+                  if (url.startsWith("assets/")) return null;
                   final uri = Uri.tryParse(url);
                   if (uri == null || !uri.isAbsolute) {
                     return "Enter a full image URL (https://…)";
@@ -171,6 +219,21 @@ class _ProductFormSheetState extends State<ProductFormSheet> {
                   return null;
                 },
               ),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: OutlinedButton.icon(
+                  onPressed: _isUploading ? null : _pickImage,
+                  icon: _isUploading
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.upload_outlined),
+                  label: Text(_isUploading ? "Uploading…" : "Upload image"),
+                ),
+              ),
+              const SizedBox(height: defaultPadding),
               _pair(
                 isWide: isWide,
                 first: _field(

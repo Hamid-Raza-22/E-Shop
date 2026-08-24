@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:shop/components/list_tile/divider_list_tile.dart';
 import 'package:shop/components/network_image_with_loader.dart';
 import 'package:shop/constants.dart';
+import 'package:shop/controllers/auth_controller.dart';
 import 'package:shop/controllers/cart_controller.dart';
 import 'package:shop/controllers/notification_controller.dart';
 import 'package:shop/controllers/user_controller.dart';
@@ -36,7 +37,10 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
 
-    if (shouldLogout != true || !context.mounted) return;
+    if (shouldLogout != true) return;
+
+    await AuthController.to.signOut();
+    if (!context.mounted) return;
 
     CartController.to.clear();
     Navigator.pushNamedAndRemoveUntil(

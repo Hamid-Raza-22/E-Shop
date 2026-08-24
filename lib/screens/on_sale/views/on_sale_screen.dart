@@ -9,20 +9,26 @@ import '../../../constants.dart';
 import '../../../models/product_model.dart';
 import '../../../controllers/cart_controller.dart';
 import '../../../route/route_constants.dart';
+import '../../../services/product_service.dart';
+import '../../../utils/service_locator.dart';
 
 /// On-sale screen: flash-sale countdown banner + discounted product sections.
 class OnSaleScreen extends StatelessWidget {
   const OnSaleScreen({super.key});
 
-  /// Only products that actually carry a discount belong on this screen.
-  List<ProductModel> _discounted(List<ProductModel> products) =>
-      products.where((product) => product.priceAfetDiscount != null).toList();
+  /// Deepest discounts headline the flash sale, the rest fill the second
+  /// section, so both sections of this screen keep their content.
+  static const int _flashSaleMinimumDiscount = 20;
+
+  List<ProductModel> _discounted(List<ProductModel>? products) =>
+      (products ?? const [])
+          .where((product) => product.isPublished && product.isInStock)
+          .where((product) => product.priceAfetDiscount != null)
+          .toList();
 
   @override
   Widget build(BuildContext context) {
-    final flashSale = _discounted(demoFlashSaleProducts);
-    final bestSellers = _discounted(demoBestSellersProducts);
-    final hasProducts = flashSale.isNotEmpty || bestSellers.isNotEmpty;
+    final service = serviceOrNull<ProductService>();
 
     return Scaffold(
       appBar: AppBar(
@@ -52,29 +58,46 @@ class OnSaleScreen extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: hasProducts
-            ? ListView(
-                children: [
-                  BannerMWithCounter(
-                    duration: const Duration(hours: 8),
-                    text: "Super Flash Sale \n50% Off",
-                    // Already on the sale screen: scroll target is the list
-                    // below, so tapping the banner is a no-op by design.
-                    press: () {},
-                  ),
-                  if (flashSale.isNotEmpty)
-                    _ProductSection(title: "Flash sale", products: flashSale),
-                  if (bestSellers.isNotEmpty)
-                    _ProductSection(
-                        title: "Best sellers on sale", products: bestSellers),
-                  const SizedBox(height: defaultPadding),
-                ],
-              )
-            : const EmptyStateView(
+        child: StreamBuilder<List<ProductModel>>(
+          stream: service?.watchPublished() ?? const Stream.empty(),
+          builder: (context, snapshot) {
+            final discounted = _discounted(snapshot.data);
+            final flashSale = discounted
+                .where((product) =>
+                    (product.dicountpercent ?? 0) >= _flashSaleMinimumDiscount)
+                .toList();
+            final bestSellers = discounted
+                .where((product) =>
+                    (product.dicountpercent ?? 0) < _flashSaleMinimumDiscount)
+                .toList();
+
+            if (discounted.isEmpty) {
+              return const EmptyStateView(
                 title: "No sales right now",
                 description:
                     "There are no discounted products at the moment. Check back during our next flash sale.",
-              ),
+              );
+            }
+
+            return ListView(
+              children: [
+                BannerMWithCounter(
+                  duration: const Duration(hours: 8),
+                  text: "Super Flash Sale \n50% Off",
+                  // Already on the sale screen: scroll target is the list
+                  // below, so tapping the banner is a no-op by design.
+                  press: () {},
+                ),
+                if (flashSale.isNotEmpty)
+                  _ProductSection(title: "Flash sale", products: flashSale),
+                if (bestSellers.isNotEmpty)
+                  _ProductSection(
+                      title: "Best sellers on sale", products: bestSellers),
+                const SizedBox(height: defaultPadding),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -118,7 +141,8 @@ class _ProductSection extends StatelessWidget {
                   priceAfetDiscount: product.priceAfetDiscount,
                   dicountpercent: product.dicountpercent,
                   press: () => Navigator.pushNamed(
-                      context, productDetailsScreenRoute),
+                      context, productDetailsScreenRoute,
+                      arguments: product),
                 ),
               );
             },

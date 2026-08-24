@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../components/product/product_card.dart';
 import '../../../constants.dart';
 import '../../../models/category_model.dart';
+import '../../../models/product_model.dart';
 import '../../../controllers/product_search_controller.dart';
 import '../../../route/route_constants.dart';
 
@@ -27,16 +29,22 @@ class _SubDiscoverScreenState extends State<SubDiscoverScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Demo data has no category field, so "All" shows the whole catalog and
-    // other chips narrow it down deterministically for the demo.
-    final catalog = ProductSearchController.to.catalog;
-    final products = _selectedIndex == 0
-        ? catalog
-        : catalog
-            .where((product) => product.title.hashCode % _subCategories.length ==
-                _selectedIndex)
-            .toList();
+    return Obx(() => _build(context, _products()));
+  }
 
+  /// "All" shows the whole published catalog; every other chip matches the
+  /// category the dashboard assigned to a product.
+  List<ProductModel> _products() {
+    final catalog = ProductSearchController.to.catalog;
+    if (_selectedIndex == 0) return catalog;
+
+    final category = _subCategories[_selectedIndex].toLowerCase();
+    return catalog
+        .where((product) => (product.category ?? "").toLowerCase() == category)
+        .toList();
+  }
+
+  Widget _build(BuildContext context, List<ProductModel> products) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: SafeArea(
@@ -94,7 +102,8 @@ class _SubDiscoverScreenState extends State<SubDiscoverScreen> {
                           priceAfetDiscount: product.priceAfetDiscount,
                           dicountpercent: product.dicountpercent,
                           press: () => Navigator.pushNamed(
-                              context, productDetailsScreenRoute),
+                              context, productDetailsScreenRoute,
+                              arguments: product),
                         );
                       },
                     ),

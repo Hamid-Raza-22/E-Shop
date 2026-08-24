@@ -12,41 +12,87 @@ import '../../../controllers/order_controller.dart';
 import '../../../controllers/payment_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../route/route_constants.dart';
+import '../../../services/product_service.dart';
 import '../../../utils/formatters.dart';
+import '../../../utils/service_locator.dart';
 import 'add_new_card_screen.dart';
 
 /// Checkout step 2: choose how to pay, then place the order.
-class PaymentMethodScreen extends StatelessWidget {
+class PaymentMethodScreen extends StatefulWidget {
   const PaymentMethodScreen({super.key});
 
-  void _placeOrder(BuildContext context) {
+  @override
+  State<PaymentMethodScreen> createState() => _PaymentMethodScreenState();
+}
+
+class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
+  /// Guards against a second tap while the order is being written.
+  bool _isPlacingOrder = false;
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _placeOrder() async {
     final cart = CartController.to;
-    if (cart.isEmpty) return;
+    if (cart.isEmpty || _isPlacingOrder) return;
 
     final payment = PaymentController.to;
+    final wallet = WalletController.to;
 
     // Wallet payments must actually cover the total.
     if (payment.selectedOption == PaymentOption.wallet) {
-      final paid = WalletController.to.spend(
+      final paid = wallet.spend(
         cart.total,
         products: cart.items.map((item) => item.product).toList(),
       );
       if (!paid) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Wallet balance is too low (${formatPrice(WalletController.to.balance)}). Top up or choose another method.",
-            ),
-          ),
+        _showMessage(
+          "Wallet balance is too low (${formatPrice(wallet.balance)}). Top up or choose another method.",
         );
         return;
       }
     }
 
-    final order =
-        OrderController.to.createFromCart(cart.items, cart.total);
+    setState(() => _isPlacingOrder = true);
+    final items = cart.items;
+    final order = await OrderController.to.createFromCart(items, cart.total);
+
+    if (order == null) {
+      // The order never reached Firestore, so the cart stays as it was and a
+      // wallet payment is refunded.
+      if (payment.selectedOption == PaymentOption.wallet) {
+        wallet.topUp(cart.total);
+      }
+      if (mounted) setState(() => _isPlacingOrder = false);
+      _showMessage("We could not place your order. Please try again.");
+      return;
+    }
+
+    // Selling reduces stock, which is what hides sold-out products in the
+    // storefront and flags them in the dashboard.
+    final products = serviceOrNull<ProductService>();
+    if (products != null) {
+      for (final item in items) {
+        final productId = item.product.id;
+        if (productId == null) continue;
+        try {
+          await products.adjustStock(productId, -item.quantity);
+        } catch (_) {
+          // Stock drift must not break a paid order.
+        }
+      }
+    }
+
+    // Counted only now that the order exists.
+    await cart.redeemPromotion();
+
     cart.clear();
     payment.clearCvv();
+    if (!mounted) return;
+    setState(() => _isPlacingOrder = false);
 
     Navigator.pushNamedAndRemoveUntil(
       context,
@@ -177,8 +223,10 @@ class PaymentMethodScreen extends StatelessWidget {
                     const SizedBox(height: defaultPadding),
                     ElevatedButton(
                       // Disabled until a usable payment selection exists.
-                      onPressed: payment.canCheckout && !cart.isEmpty
-                          ? () => _placeOrder(context)
+                      onPressed: payment.canCheckout &&
+                              !cart.isEmpty &&
+                              !_isPlacingOrder
+                          ? _placeOrder
                           : null,
                       child: Text("Pay ${formatPrice(cart.total)}"),
                     ),

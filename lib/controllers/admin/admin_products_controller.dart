@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import '../../models/product_model.dart';
+import '../../services/demo_seed_service.dart';
 import '../../services/product_service.dart';
 
 /// How the product list is narrowed down in the dashboard.
@@ -8,10 +9,12 @@ enum ProductFilter { all, published, draft, lowStock }
 
 /// Catalog management: live product list, search, filtering and CRUD.
 class AdminProductsController extends GetxController {
-  AdminProductsController({ProductService? service})
-      : _service = service ?? Get.find<ProductService>();
+  AdminProductsController({ProductService? service, DemoSeedService? seedService})
+      : _service = service ?? Get.find<ProductService>(),
+        _seed = seedService ?? Get.find<DemoSeedService>();
 
   final ProductService _service;
+  final DemoSeedService _seed;
 
   static AdminProductsController get to => Get.find<AdminProductsController>();
 
@@ -101,23 +104,43 @@ class AdminProductsController extends GetxController {
   }
 
   /// Copies the bundled demo catalog into Firestore so a fresh project has
-  /// something to manage instead of an empty dashboard.
+  /// something to manage instead of an empty dashboard, then seeds the matching
+  /// customers, orders, reviews and coupons.
+  ///
+  /// Safe to run twice: the catalog import writes to stable document ids and the
+  /// rest is skipped once it exists.
   Future<bool> seedDemoCatalog() {
     if (_products.isNotEmpty) return Future.value(false);
-    return _guard(() => _service.importAll(_demoCatalog()));
+
+    return _guard(() async {
+      await _service.importAll(_demoCatalog());
+      // The seeded orders and reviews must point at the products that were just
+      // written, so the catalog is re-read instead of guessing ids.
+      await _seed.seedAll(products: await _service.fetchAll());
+    });
   }
 
   List<ProductModel> _demoCatalog() {
     final seen = <String>{};
+    // Categories are assigned from the list a product came from, so the
+    // storefront's category screens have something to filter on.
+    final sources = <String, List<ProductModel>>{
+      "Woman’s": demoPopularProducts,
+      "Man’s": demoFlashSaleProducts,
+      "Accessories": demoBestSellersProducts,
+      "Kids": kidsProducts,
+    };
+
     return [
-      ...demoPopularProducts,
-      ...demoFlashSaleProducts,
-      ...demoBestSellersProducts,
-      ...kidsProducts,
-    ]
-        .where((product) => seen.add(product.key))
-        .map((product) => product.copyWith(stock: 25, isPublished: true))
-        .toList();
+      for (final entry in sources.entries)
+        for (final product in entry.value)
+          if (seen.add(product.key))
+            product.copyWith(
+              stock: 25,
+              isPublished: true,
+              category: product.category ?? entry.key,
+            ),
+    ];
   }
 
   Future<bool> _guard(Future<void> Function() action) async {
