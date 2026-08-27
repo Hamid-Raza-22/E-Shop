@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../models/cart_item_model.dart';
@@ -146,7 +147,10 @@ class CartController extends GetxController {
     update();
   }
 
-  /// Seeds a couple of items so the cart demo is not empty on first open.
+  /// Puts a couple of items in the cart.
+  ///
+  /// Only used by tests: a real shopper's cart must never be pre-filled.
+  @visibleForTesting
   void seedDemoItems() {
     if (_items.isNotEmpty) return;
     _items.addAll([
